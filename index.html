@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel – Oportunidade de Virada</title>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+    input, button { padding: 8px; font-size: 16px; margin-top: 10px; }
+    #mensagem { font-weight: bold; color: red; }
+    #painel { display: none; margin-top: 20px; }
+    table { background: white; width: 100%; }
+  </style>
+</head>
+<body>
+  <h2>Painel – Oportunidade de Virada</h2>
+  <input type="email" id="email" placeholder="Digite seu e-mail autorizado">
+  <button onclick="consultar()">Acessar</button>
+  <p id="mensagem"></p>
+  <div id="painel">
+    <table id="tabela" class="display nowrap"></table>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzGWNQilhb9ErEs6Sx9osQwSUT3Hfn91IQyISZjKjCaf9WWCB6HERQmtxKlXlR_6ic2/exec';
+
+    function consultar() {
+      const email = document.getElementById("email").value.trim();
+      if (!email) return document.getElementById("mensagem").textContent = "Informe o e-mail.";
+
+      fetch(`${API_URL}?email=${encodeURIComponent(email)}`)
+        .then(r => r.json())
+        .then(res => {
+          if (!res.autorizado) {
+            document.getElementById("mensagem").textContent = "Acesso negado.";
+            return;
+          }
+
+          document.getElementById("mensagem").textContent = "";
+          document.getElementById("painel").style.display = "block";
+
+          const colunas = Object.keys(res.dados[0] || {});
+          const dados = res.dados.map(l => colunas.map(c => l[c]));
+
+          $('#tabela').DataTable({
+            data: dados,
+            columns: colunas.map(c => ({ title: c })),
+            destroy: true,
+            dom: 'Bfrtip',
+            buttons: ['csvHtml5', 'excelHtml5'],
+            scrollX: true,
+            pageLength: 25
+          });
+        })
+        .catch(() => document.getElementById("mensagem").textContent = "Erro ao consultar.");
+    }
+  </script>
+</body>
+</html>
