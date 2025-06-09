@@ -19,6 +19,7 @@
     input, button {
       padding: 10px;
       font-size: 16px;
+      margin-bottom: 8px;
       width: 100%;
       max-width: 320px;
     }
@@ -26,7 +27,6 @@
     #mensagem {
       font-weight: bold;
       color: red;
-      margin-top: 10px;
     }
 
     #painel {
@@ -36,8 +36,7 @@
 
     #contador {
       font-weight: bold;
-      margin-top: 15px;
-      margin-bottom: 10px;
+      margin: 15px 0 10px 0;
     }
 
     table {
@@ -48,6 +47,19 @@
     p {
       max-width: 800px;
       line-height: 1.5;
+    }
+
+    .filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+      margin-bottom: 10px;
+    }
+
+    .filtros input {
+      flex: 1;
+      max-width: 200px;
     }
   </style>
 </head>
@@ -66,6 +78,21 @@
   </p>
 
   <input type="email" id="email" placeholder="Digite seu e-mail autorizado">
+  
+  <div class="filtros">
+    <input type="text" placeholder="Token 1" class="tokenFiltro">
+    <input type="text" placeholder="Token 2" class="tokenFiltro">
+    <input type="text" placeholder="Token 3" class="tokenFiltro">
+    <input type="text" placeholder="Token 4" class="tokenFiltro">
+    <input type="text" placeholder="Token 5" class="tokenFiltro">
+    <input type="text" placeholder="Token 6" class="tokenFiltro">
+    <input type="text" placeholder="Token 7" class="tokenFiltro">
+    <input type="text" placeholder="Token 8" class="tokenFiltro">
+    <input type="text" placeholder="Token 9" class="tokenFiltro">
+    <input type="text" placeholder="Token 10" class="tokenFiltro">
+    <input type="number" id="rankingMax" placeholder="Ranking máx (ex: 300)">
+  </div>
+
   <button onclick="consultar()">Acessar</button>
   <p id="mensagem"></p>
 
@@ -91,6 +118,12 @@
         return;
       }
 
+      const tokensFiltro = Array.from(document.querySelectorAll('.tokenFiltro'))
+        .map(input => input.value.trim().toLowerCase())
+        .filter(v => v !== "");
+
+      const rankingMax = parseInt(document.getElementById("rankingMax").value.trim());
+
       fetch(`${API_URL}?email=${encodeURIComponent(email)}`)
         .then(r => r.json())
         .then(res => {
@@ -99,13 +132,28 @@
             return;
           }
 
+          let dadosFiltrados = res.dados;
+
+          // Filtrar por tokens se informado
+          if (tokensFiltro.length > 0) {
+            dadosFiltrados = dadosFiltrados.filter(l =>
+              tokensFiltro.includes((l["Símbolo"] || "").toLowerCase()) ||
+              tokensFiltro.includes((l["Slug"] || "").toLowerCase())
+            );
+          }
+
+          // Filtrar por ranking se informado
+          if (!isNaN(rankingMax)) {
+            dadosFiltrados = dadosFiltrados.filter(l => parseInt(l["Rank"]) <= rankingMax);
+          }
+
           document.getElementById("mensagem").textContent = "";
           document.getElementById("painel").style.display = "block";
 
-          const colunasOriginais = Object.keys(res.dados[0] || {});
+          const colunasOriginais = Object.keys(dadosFiltrados[0] || {});
           const colunas = colunasOriginais.filter(c => c.toLowerCase() !== 'nome');
 
-          const dados = res.dados.map(linha => {
+          const dados = dadosFiltrados.map(linha => {
             return colunas.map(coluna => {
               const valor = linha[coluna];
               if (coluna.toLowerCase() === 'link' && typeof valor === 'string') {
@@ -115,7 +163,7 @@
             });
           });
 
-          $('#tabela').DataTable({
+          const tabela = $('#tabela').DataTable({
             data: dados,
             columns: colunas.map(c => ({ title: c })),
             destroy: true,
@@ -128,6 +176,27 @@
           });
 
           document.getElementById("contador").textContent = `Total de moedas carregadas: ${dados.length}`;
+
+          // Coloração do RSI
+          const idxRSI = colunas.findIndex(c => c.toLowerCase() === 'rsi');
+          if (idxRSI >= 0) {
+            const linhas = document.querySelectorAll("#tabela tbody tr");
+            const total = linhas.length;
+            const terco = Math.ceil(total / 3);
+
+            linhas.forEach((linha, i) => {
+              const celula = linha.cells[idxRSI];
+              if (!celula) return;
+              if (i < terco) {
+                celula.style.background = "#006400"; // Verde escuro
+                celula.style.color = "#fff";
+              } else if (i < 2 * terco) {
+                celula.style.background = "#32CD32"; // Verde médio
+              } else {
+                celula.style.background = "#90EE90"; // Verde claro
+              }
+            });
+          }
         })
         .catch(() => {
           document.getElementById("mensagem").textContent = "Erro ao consultar.";
