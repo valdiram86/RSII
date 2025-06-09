@@ -4,14 +4,41 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Painel – Oportunidade de Virada</title>
+
+  <!-- Estilos do DataTables -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
-    input, button { padding: 8px; font-size: 16px; margin-top: 10px; }
-    #mensagem { font-weight: bold; color: red; }
-    #painel { display: none; margin-top: 20px; }
-    table { background: white; width: 100%; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+      zoom: 90%;
+    }
+
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    #mensagem {
+      font-weight: bold;
+      color: red;
+      margin-top: 10px;
+    }
+
+    #painel {
+      margin-top: 20px;
+      overflow-x: auto;
+    }
+
+    table {
+      background: white;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
@@ -19,10 +46,12 @@
   <input type="email" id="email" placeholder="Digite seu e-mail autorizado">
   <button onclick="consultar()">Acessar</button>
   <p id="mensagem"></p>
+
   <div id="painel">
     <table id="tabela" class="display nowrap"></table>
   </div>
 
+  <!-- Scripts -->
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
@@ -34,7 +63,10 @@
 
     function consultar() {
       const email = document.getElementById("email").value.trim();
-      if (!email) return document.getElementById("mensagem").textContent = "Informe o e-mail.";
+      if (!email) {
+        document.getElementById("mensagem").textContent = "Informe o e-mail.";
+        return;
+      }
 
       fetch(`${API_URL}?email=${encodeURIComponent(email)}`)
         .then(r => r.json())
@@ -48,7 +80,15 @@
           document.getElementById("painel").style.display = "block";
 
           const colunas = Object.keys(res.dados[0] || {});
-          const dados = res.dados.map(l => colunas.map(c => l[c]));
+          const dados = res.dados.map(linha => {
+            return colunas.map(coluna => {
+              const valor = linha[coluna];
+              if (coluna.toLowerCase() === 'link' && typeof valor === 'string') {
+                return `<a href="${valor}" target="_blank">${valor}</a>`;
+              }
+              return valor;
+            });
+          });
 
           $('#tabela').DataTable({
             data: dados,
@@ -57,10 +97,14 @@
             dom: 'Bfrtip',
             buttons: ['csvHtml5', 'excelHtml5'],
             scrollX: true,
-            pageLength: 25
+            paging: false, // 👈 remove paginação
+            ordering: true,
+            info: false
           });
         })
-        .catch(() => document.getElementById("mensagem").textContent = "Erro ao consultar.");
+        .catch(() => {
+          document.getElementById("mensagem").textContent = "Erro ao consultar.";
+        });
     }
   </script>
 </body>
