@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Painel – Oportunidade de Virada</title>
+  <title>Matrix Reversal Scanner</title>
 
-  <!-- Estilos do DataTables -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
 
@@ -35,19 +34,43 @@
       overflow-x: auto;
     }
 
+    #contador {
+      font-weight: bold;
+      margin-top: 15px;
+      margin-bottom: 10px;
+    }
+
     table {
       background: white;
       width: 100%;
     }
+
+    p {
+      max-width: 800px;
+      line-height: 1.5;
+    }
   </style>
 </head>
 <body>
-  <h2>Painel – Oportunidade de Virada</h2>
+  <h2>Matrix Reversal Scanner</h2>
+  <p><strong>Mapeando Reversões. Prevendo o impulso. Antecipando o momento.</strong></p>
+
+  <p>
+    O <strong>Matrix Reversal Scanner</strong> é uma ferramenta inteligente focada em identificar criptomoedas com potencial de reversão de tendência.
+    Utilizando métricas como RSI, volume, variação de preço e padrões de comportamento, o sistema destaca ativos com probabilidade elevada de alta no curto prazo.
+  </p>
+
+  <p>
+    Com base em dados consolidados das últimas horas e dias, este radar busca antecipar movimentos antes que eles se tornem óbvios para o mercado.
+    O acesso é restrito a usuários autorizados. Para continuar, insira um e-mail validado pela equipe.
+  </p>
+
   <input type="email" id="email" placeholder="Digite seu e-mail autorizado">
   <button onclick="consultar()">Acessar</button>
   <p id="mensagem"></p>
 
   <div id="painel">
+    <p id="contador"></p>
     <table id="tabela" class="display nowrap"></table>
   </div>
 
@@ -79,12 +102,14 @@
           document.getElementById("mensagem").textContent = "";
           document.getElementById("painel").style.display = "block";
 
-          const colunas = Object.keys(res.dados[0] || {});
+          const colunasOriginais = Object.keys(res.dados[0] || {});
+          const colunas = colunasOriginais.filter(c => c.toLowerCase() !== 'nome');
+
           const dados = res.dados.map(linha => {
             return colunas.map(coluna => {
               const valor = linha[coluna];
               if (coluna.toLowerCase() === 'link' && typeof valor === 'string') {
-                return `<a href="${valor}" target="_blank">${valor}</a>`;
+                return `<a href="${valor}" target="_blank">🔗</a>`;
               }
               return valor;
             });
@@ -97,10 +122,12 @@
             dom: 'Bfrtip',
             buttons: ['csvHtml5', 'excelHtml5'],
             scrollX: true,
-            paging: false, // 👈 remove paginação
+            paging: false,
             ordering: true,
             info: false
           });
+
+          document.getElementById("contador").textContent = `Total de moedas carregadas: ${dados.length}`;
         })
         .catch(() => {
           document.getElementById("mensagem").textContent = "Erro ao consultar.";
