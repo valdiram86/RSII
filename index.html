@@ -160,7 +160,7 @@
             });
           });
 
-          const hoje = new Date().toISOString().split("T")[0];
+          const dataHoje = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
 
           $('#tabela').DataTable({
             data: dados,
@@ -170,11 +170,11 @@
             buttons: [
               {
                 extend: 'csvHtml5',
-                title: `MatrixReversal_${hoje}`
+                title: `MatrixReversal-${dataHoje}`
               },
               {
                 extend: 'excelHtml5',
-                title: `MatrixReversal_${hoje}`
+                title: `MatrixReversal-${dataHoje}`
               }
             ],
             scrollX: true,
