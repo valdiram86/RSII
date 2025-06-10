@@ -70,29 +70,18 @@
   <div id="intro">
     <h2>Matrix Reversal Scanner</h2>
     <p><strong>Mapeando Reversões. Prevendo o impulso. Antecipando o momento.</strong></p>
-
-    <p>
-      O <strong>Matrix Reversal Scanner</strong> é um radar avançado focado na identificação de criptomoedas com alta probabilidade de reversão positiva.
-      Utilizando dados reais, filtragens por RSI (Índice de Força Relativa), tendências e comportamento de mercado,
-      o sistema rastreia oportunidades com potencial de valorização rápida nos próximos ciclos.
+    <p>O Matrix Reversal Scanner é um radar avançado focado na identificação de criptomoedas com alta probabilidade de reversão positiva.  
+    Utilizando dados reais, filtragens por RSI (Índice de Força Relativa), tendências e comportamento de mercado, o sistema rastreia oportunidades com potencial de valorização rápida nos próximos ciclos.</p>
+    <p>Este painel foi desenvolvido para caçadores de movimentos estratégicos, com foco em análises de curto e médio prazo.<br>
+    Aqui você verá os ativos que:
+      <ul>
+        <li>Caíram no mês, mas começam a ganhar força;</li>
+        <li>Apresentam volume consistente;</li>
+        <li>Mostram sinais claros de reação com RSI otimizado;</li>
+        <li>Estão fora do radar comum, mas com forte chance de virada.</li>
+      </ul>
     </p>
-
-    <p>
-      Este painel foi desenvolvido para <strong>caçadores de movimentos estratégicos</strong>, com foco em análises de curto e médio prazo.
-      Aqui você verá os ativos que:
-    </p>
-
-    <ul>
-      <li>Caíram no mês, mas começam a ganhar força;</li>
-      <li>Apresentam volume consistente;</li>
-      <li>Mostram sinais claros de reação com RSI otimizado;</li>
-      <li>Estão fora do radar comum, mas com forte chance de virada.</li>
-    </ul>
-
-    <p>
-      <strong>O acesso é restrito a e-mails autorizados.</strong><br>
-      Insira seu e-mail abaixo e veja as oportunidades antes que elas disparem.
-    </p>
+    <p><strong>O acesso é restrito a e-mails autorizados.<br>Insira seu e-mail abaixo e veja as oportunidades antes que elas disparem.</strong></p>
   </div>
 
   <input type="email" id="email" placeholder="Digite seu e-mail autorizado">
@@ -205,7 +194,6 @@
 
           document.getElementById("contador").textContent = `Total de moedas carregadas: ${dados.length}`;
 
-          // Colorir RSI
           const idxRSI = colunas.findIndex(c => c.toLowerCase() === 'rsi');
           if (idxRSI >= 0) {
             const linhas = document.querySelectorAll("#tabela tbody tr");
