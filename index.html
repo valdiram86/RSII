@@ -71,17 +71,13 @@
   <div id="intro">
     <h2>Matrix Reversal Scanner</h2>
     <p><strong>Mapeando Reversões. Prevendo o impulso. Antecipando o momento.</strong></p>
-    <p>O Matrix Reversal Scanner é um radar avançado focado na identificação de criptomoedas com alta probabilidade de reversão positiva.  
-    Utilizando dados reais, filtragens por RSI (Índice de Força Relativa), tendências e comportamento de mercado, o sistema rastreia oportunidades com potencial de valorização rápida nos próximos ciclos.</p>
-    <p>Este painel foi desenvolvido para caçadores de movimentos estratégicos, com foco em análises de curto e médio prazo.<br>
-    Aqui você verá os ativos que:
-      <ul>
-        <li>Caíram no mês, mas começam a ganhar força;</li>
-        <li>Apresentam volume consistente;</li>
-        <li>Mostram sinais claros de reação com RSI otimizado;</li>
-        <li>Estão fora do radar comum, mas com forte chance de virada.</li>
-      </ul>
-    </p>
+    <p>O Matrix Reversal Scanner é um radar avançado focado na identificação de criptomoedas com alta probabilidade de reversão positiva.</p>
+    <ul>
+      <li>Caíram no mês, mas começam a ganhar força</li>
+      <li>Apresentam volume consistente</li>
+      <li>Mostram sinais claros de reação com RSI otimizado</li>
+      <li>Estão fora do radar comum, mas com forte chance de virada</li>
+    </ul>
     <p><strong>O acesso é restrito a e-mails autorizados.<br>Insira seu e-mail abaixo e veja as oportunidades antes que elas disparem.</strong></p>
   </div>
 
@@ -104,6 +100,7 @@
 
   <button onclick="consultar()">Acessar</button>
   <button onclick="filtrarPorRanking()">Buscar por Faixa de Ranking</button>
+
   <p id="mensagem"></p>
 
   <div id="painel">
@@ -119,6 +116,8 @@
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbz7mmD2UWw5Ve7h840FPAzlbyBMkgsDzup0Sx104hPTW9g14JAwFjTT6re2MQ_ygOuY/exec';
+
+    let dadosAtuais = [];
 
     function consultar() {
       const email = document.getElementById("email").value.trim();
@@ -165,7 +164,7 @@
             "Var 24h (%)", "Var 7D (%)", "Var 30D (%)", "Volume"
           ];
 
-          const dados = dadosFiltrados.map(linha => {
+          dadosAtuais = dadosFiltrados.map(linha => {
             return colunas.map(coluna => {
               const valor = linha[coluna];
               if (coluna.toLowerCase() === 'link' && typeof valor === 'string') {
@@ -178,7 +177,7 @@
           const dataHoje = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
 
           $('#tabela').DataTable({
-            data: dados,
+            data: dadosAtuais,
             columns: colunas.map(c => ({ title: c })),
             destroy: true,
             dom: 'Bfrtip',
@@ -198,9 +197,9 @@
             info: false
           });
 
-          document.getElementById("contador").textContent = `Total de moedas carregadas: ${dados.length}`;
+          document.getElementById("contador").textContent = `Total de moedas carregadas: ${dadosAtuais.length}`;
 
-          // CORES ORDENADAS POR VALOR REAL DE RSI
+          // Cores por RSI
           const idxRSI = colunas.findIndex(c => c.toLowerCase() === 'rsi');
           if (idxRSI >= 0) {
             const linhas = document.querySelectorAll("#tabela tbody tr");
@@ -244,7 +243,7 @@
       const tabela = $('#tabela').DataTable();
       tabela.rows().every(function () {
         const data = this.data();
-        const rank = parseInt(data[2]); // índice 2 = coluna "Rank"
+        const rank = parseInt(data[2]); // coluna "Rank"
         if (rank >= rankingMin && rank <= rankingMax) {
           $(this.node()).show();
         } else {
