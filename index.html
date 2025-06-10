@@ -44,11 +44,6 @@
       width: 100%;
     }
 
-    p {
-      max-width: 800px;
-      line-height: 1.5;
-    }
-
     .filtros {
       display: flex;
       flex-wrap: wrap;
@@ -66,16 +61,6 @@
 <body>
   <h2>Matrix Reversal Scanner</h2>
   <p><strong>Mapeando Reversões. Prevendo o impulso. Antecipando o momento.</strong></p>
-
-  <p>
-    O <strong>Matrix Reversal Scanner</strong> é uma ferramenta inteligente focada em identificar criptomoedas com potencial de reversão de tendência.
-    Utilizando métricas como RSI, volume, variação de preço e padrões de comportamento, o sistema destaca ativos com probabilidade elevada de alta no curto prazo.
-  </p>
-
-  <p>
-    Com base em dados consolidados das últimas horas e dias, este radar busca antecipar movimentos antes que eles se tornem óbvios para o mercado.
-    O acesso é restrito a usuários autorizados. Para continuar, insira um e-mail validado pela equipe.
-  </p>
 
   <input type="email" id="email" placeholder="Digite seu e-mail autorizado">
   
@@ -101,7 +86,6 @@
     <table id="tabela" class="display nowrap"></table>
   </div>
 
-  <!-- Scripts -->
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
@@ -134,7 +118,6 @@
 
           let dadosFiltrados = res.dados;
 
-          // Filtrar por tokens se informado
           if (tokensFiltro.length > 0) {
             dadosFiltrados = dadosFiltrados.filter(l =>
               tokensFiltro.includes((l["Símbolo"] || "").toLowerCase()) ||
@@ -142,7 +125,6 @@
             );
           }
 
-          // Filtrar por ranking se informado
           if (!isNaN(rankingMax)) {
             dadosFiltrados = dadosFiltrados.filter(l => parseInt(l["Rank"]) <= rankingMax);
           }
@@ -150,8 +132,10 @@
           document.getElementById("mensagem").textContent = "";
           document.getElementById("painel").style.display = "block";
 
-          const colunasOriginais = Object.keys(dadosFiltrados[0] || {});
-          const colunas = colunasOriginais.filter(c => c.toLowerCase() !== 'nome');
+          const colunas = [
+            "Rank", "Símbolo", "Data", "Preço", "RSI", "Link",
+            "Var 24h (%)", "Var 7D (%)", "Var 30D (%)", "Volume"
+          ];
 
           const dados = dadosFiltrados.map(linha => {
             return colunas.map(coluna => {
@@ -163,7 +147,7 @@
             });
           });
 
-          const tabela = $('#tabela').DataTable({
+          $('#tabela').DataTable({
             data: dados,
             columns: colunas.map(c => ({ title: c })),
             destroy: true,
@@ -177,7 +161,7 @@
 
           document.getElementById("contador").textContent = `Total de moedas carregadas: ${dados.length}`;
 
-          // Coloração do RSI
+          // Colorir RSI
           const idxRSI = colunas.findIndex(c => c.toLowerCase() === 'rsi');
           if (idxRSI >= 0) {
             const linhas = document.querySelectorAll("#tabela tbody tr");
