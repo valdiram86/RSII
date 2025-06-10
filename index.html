@@ -195,24 +195,41 @@
           document.getElementById("contador").textContent = `Total de moedas carregadas: ${dados.length}`;
 
           const idxRSI = colunas.findIndex(c => c.toLowerCase() === 'rsi');
-          if (idxRSI >= 0) {
-            const linhas = document.querySelectorAll("#tabela tbody tr");
-            const total = linhas.length;
-            const terco = Math.ceil(total / 3);
+if (idxRSI >= 0) {
+  const linhas = document.querySelectorAll("#tabela tbody tr");
+  const valoresRSI = [];
 
-            linhas.forEach((linha, i) => {
-              const celula = linha.cells[idxRSI];
-              if (!celula) return;
-              if (i < terco) {
-                celula.style.background = "#006400"; // Verde escuro
-                celula.style.color = "#fff";
-              } else if (i < 2 * terco) {
-                celula.style.background = "#32CD32"; // Verde médio
-              } else {
-                celula.style.background = "#90EE90"; // Verde claro
-              }
-            });
-          }
+  linhas.forEach(linha => {
+    const celula = linha.cells[idxRSI];
+    if (!celula) return;
+    const valor = parseFloat(celula.textContent.replace(",", "."));
+    if (!isNaN(valor)) {
+      valoresRSI.push(valor);
+    } else {
+      valoresRSI.push(-1); // Para manter índice mesmo em erro
+    }
+  });
+
+  const ordenado = [...valoresRSI].map((v, i) => ({ i, v }))
+    .sort((a, b) => b.v - a.v); // Maior RSI primeiro
+
+  const terco = Math.ceil(linhas.length / 3);
+
+  ordenado.forEach((item, idx) => {
+    const linha = linhas[item.i];
+    const celula = linha.cells[idxRSI];
+    if (!celula) return;
+
+    if (idx < terco) {
+      celula.style.background = "#006400"; // Verde escuro
+      celula.style.color = "#fff";
+    } else if (idx < 2 * terco) {
+      celula.style.background = "#32CD32"; // Verde médio
+    } else {
+      celula.style.background = "#90EE90"; // Verde claro
+    }
+  });
+}
         })
         .catch(() => {
           document.getElementById("mensagem").textContent = "Erro ao consultar.";
