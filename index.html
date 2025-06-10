@@ -7,13 +7,20 @@
 
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
-
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #f4f4f4;
       padding: 20px;
       zoom: 90%;
+    }
+
+    h2 { margin-bottom: 0; }
+    #intro {
+      background: #ffffff;
+      padding: 15px;
+      border-left: 6px solid #006400;
+      margin-bottom: 20px;
     }
 
     input, button {
@@ -24,31 +31,11 @@
       max-width: 320px;
     }
 
-    #mensagem {
-      font-weight: bold;
-      color: red;
-    }
-
-    #painel {
-      margin-top: 20px;
-      overflow-x: auto;
-    }
-
-    #contador {
-      font-weight: bold;
-      margin: 15px 0 10px 0;
-    }
-
-    table {
-      background: white;
-      width: 100%;
-    }
-
     .filtros {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin-top: 15px;
+      margin-top: 10px;
       margin-bottom: 10px;
     }
 
@@ -56,14 +43,40 @@
       flex: 1;
       max-width: 200px;
     }
+
+    #mensagem {
+      font-weight: bold;
+      color: red;
+    }
+
+    #contador {
+      font-weight: bold;
+      margin: 15px 0 10px 0;
+    }
+
+    #painel {
+      margin-top: 20px;
+      overflow-x: auto;
+    }
+
+    table {
+      background: white;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
-  <h2>Matrix Reversal Scanner</h2>
-  <p><strong>Mapeando Reversões. Prevendo o impulso. Antecipando o momento.</strong></p>
+
+  <div id="intro">
+    <h2>Matrix Reversal Scanner</h2>
+    <p><strong>Mapeando Reversões. Prevendo o impulso. Antecipando o momento.</strong></p>
+    <p>O Matrix Reversal Scanner é um radar avançado focado na identificação de criptomoedas com alta probabilidade de reversão positiva.  
+    Utilizando dados reais e critérios técnicos como RSI, volume e comportamento histórico, detectamos movimentos com potencial de valorização antes que ganhem força no mercado.</p>
+    <p>Insira seu e-mail autorizado para acessar o painel completo. A visualização é exclusiva para membros.</p>
+  </div>
 
   <input type="email" id="email" placeholder="Digite seu e-mail autorizado">
-  
+
   <div class="filtros">
     <input type="text" placeholder="Token 1" class="tokenFiltro">
     <input type="text" placeholder="Token 2" class="tokenFiltro">
@@ -133,7 +146,7 @@
           document.getElementById("painel").style.display = "block";
 
           const colunas = [
-            "Rank", "Símbolo", "Data", "Preço", "RSI", "Link",
+            "Preço", "Símbolo", "Rank", "RSI", "Link",
             "Var 24h (%)", "Var 7D (%)", "Var 30D (%)", "Volume"
           ];
 
@@ -147,12 +160,23 @@
             });
           });
 
+          const hoje = new Date().toISOString().split("T")[0];
+
           $('#tabela').DataTable({
             data: dados,
             columns: colunas.map(c => ({ title: c })),
             destroy: true,
             dom: 'Bfrtip',
-            buttons: ['csvHtml5', 'excelHtml5'],
+            buttons: [
+              {
+                extend: 'csvHtml5',
+                title: `MatrixReversal_${hoje}`
+              },
+              {
+                extend: 'excelHtml5',
+                title: `MatrixReversal_${hoje}`
+              }
+            ],
             scrollX: true,
             paging: false,
             ordering: true,
