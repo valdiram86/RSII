@@ -36,8 +36,6 @@
     #contador { font-weight: bold; margin: 15px 0 10px 0; }
     #painel { margin-top: 20px; overflow-x: auto; }
     table { background: white; width: 100%; }
-
-    /* Destaques */
     #destaques { background: #e6ffe6; border: 1px solid #006400; padding: 10px; margin-bottom: 15px; }
     #destaques p { margin: 5px 0; }
   </style>
@@ -88,10 +86,7 @@
 
 <!-- Destaques automáticos -->
 <div id="destaques">
-  <p><strong>💎 Top Potenciais (RSI):</strong> <span id="topRSI">...</span></p>
-  <p><strong>📉 Desvalorizadas 7D:</strong> <span id="topDesval7D">...</span></p>
-  <p><strong>📉 Desvalorizadas 30D:</strong> <span id="topDesval30D">...</span></p>
-  <p><strong>💰 Maior Volume:</strong> <span id="topVolume">...</span></p>
+  <p><strong>🧨 Top 10 criptos com maior desvalorização combinada (7D + 30D) e maior volume:</strong></p>
 </div>
 
 <div id="painel">
@@ -172,42 +167,29 @@ function consultar() {
 
       document.getElementById("contador").textContent = `Total de moedas carregadas: ${dadosAtuais.length}`;
 
-      const idxRSI = colunas.indexOf("RSI");
-      if (idxRSI >= 0) {
-        const linhas = document.querySelectorAll("#tabela tbody tr");
-        const valores = Array.from(linhas).map(l => parseFloat(l.cells[idxRSI]?.innerText?.replace(',', '.')) || 0);
-        const ordenado = valores.map((v, i) => ({ valor: v, i })).sort((a, b) => b.valor - a.valor);
-        const terco = Math.ceil(ordenado.length / 3);
+      // 🔥 Top 10 desvalorizadas combinadas com volume alto
+      let topCombinadas = dadosFiltrados
+        .filter(row => {
+          const var7d = parseFloat(row["Var 7D (%)"]);
+          const var30d = parseFloat(row["Var 30D (%)"]);
+          const volume = parseFloat(row["Volume"]);
+          return !isNaN(var7d) && !isNaN(var30d) && !isNaN(volume)
+            && var7d < 0 && var30d < 0 && volume > 0;
+        })
+        .map(row => ({
+          simbolo: row["Símbolo"],
+          score: Math.abs(parseFloat(row["Var 7D (%)"])) + Math.abs(parseFloat(row["Var 30D (%)"])) + (parseFloat(row["Volume"]) / 1000000)
+        }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 10)
+        .map(m => m.simbolo);
 
-        ordenado.forEach((item, idx) => {
-          const celula = linhas[item.i].cells[idxRSI];
-          if (!celula) return;
-          if (idx < terco) { celula.style.background = "#006400"; celula.style.color = "#fff"; }
-          else if (idx < 2 * terco) { celula.style.background = "#32CD32"; }
-          else { celula.style.background = "#90EE90"; }
-        });
+      const container = document.getElementById("destaques");
+      for (let i = 0; i < 10; i++) {
+        const campo = document.createElement("p");
+        campo.innerHTML = `<strong>🧨 Queda Combinada #${i + 1}:</strong> ${topCombinadas[i] || "-"}`;
+        container.appendChild(campo);
       }
-
-      // Destaques automáticos
-      let topRSI = "", topDesval7D = "", topDesval30D = "", topVolume = "";
-      let maxRSI = -1, min7D = 999, min30D = 999, maxVol = -1;
-
-      dadosFiltrados.forEach(row => {
-        const rsi = parseFloat(row["RSI"]);
-        const var7d = parseFloat(row["Var 7D (%)"]);
-        const var30d = parseFloat(row["Var 30D (%)"]);
-        const vol = parseFloat(row["Volume"]);
-
-        if (rsi > maxRSI) { maxRSI = rsi; topRSI = row["Símbolo"]; }
-        if (var7d < min7D) { min7D = var7d; topDesval7D = row["Símbolo"]; }
-        if (var30d < min30D) { min30D = var30d; topDesval30D = row["Símbolo"]; }
-        if (vol > maxVol) { maxVol = vol; topVolume = row["Símbolo"]; }
-      });
-
-      document.getElementById("topRSI").textContent = topRSI;
-      document.getElementById("topDesval7D").textContent = topDesval7D;
-      document.getElementById("topDesval30D").textContent = topDesval30D;
-      document.getElementById("topVolume").textContent = topVolume;
 
     })
     .catch(() => {
