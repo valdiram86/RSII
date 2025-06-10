@@ -7,6 +7,7 @@
 
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -14,12 +15,15 @@
       padding: 20px;
       zoom: 90%;
     }
+
+    h2 { margin-bottom: 0; }
     #intro {
       background: #ffffff;
       padding: 15px;
       border-left: 6px solid #006400;
       margin-bottom: 20px;
     }
+
     input, button {
       padding: 10px;
       font-size: 16px;
@@ -27,6 +31,7 @@
       width: 100%;
       max-width: 320px;
     }
+
     .filtros {
       display: flex;
       flex-wrap: wrap;
@@ -34,27 +39,114 @@
       margin-top: 10px;
       margin-bottom: 10px;
     }
-    #mensagem { font-weight: bold; color: red; }
-    #contador { font-weight: bold; margin: 15px 0 10px 0; }
-    #painel { margin-top: 20px; overflow-x: auto; }
-    table { background: white; width: 100%; }
+
+    .filtros input {
+      flex: 1;
+      max-width: 200px;
+    }
+
+    #mensagem {
+      font-weight: bold;
+      color: red;
+    }
+
+    #contador {
+      font-weight: bold;
+      margin: 15px 0 10px 0;
+    }
+
+    #painel {
+      margin-top: 20px;
+      overflow-x: auto;
+    }
+
+    table {
+      background: white;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
 
   <div id="intro">
-    <h2>Matrix Reversal Scanner</h2>
-    <p><strong>Mapeando Reversões. Prevendo o impulso. Antecipando o momento.</strong></p>
+  <h2>Matrix Reversal Scanner</h2>
+  <p><strong>Mapeando Reversões. Prevendo o impulso. Antecipando o momento.</strong></p>
+  <p>O <strong>Matrix Reversal Scanner</strong> é um radar avançado focado na identificação de criptomoedas com alta probabilidade de reversão positiva.  
+  Utilizando dados reais, filtragens por RSI (Índice de Força Relativa), tendências e comportamento de mercado, o sistema rastreia oportunidades com potencial de valorização rápida nos próximos ciclos.</p>
+
+  <p>Este painel foi desenvolvido para caçadores de movimentos estratégicos, com foco em análises de curto e médio prazo.<br>
+  Aqui você verá os ativos que:</p>
+  <ul>
+    <li>Caíram no mês, mas começam a ganhar força;</li>
+    <li>Apresentam volume consistente e comportamento técnico promissor;</li>
+    <li>Mostram sinais claros de reação com RSI otimizado;</li>
+    <li>Estão fora do radar comum, mas com forte chance de virada.</li>
+  </ul>
+
+  <p><strong>Importante:</strong> Este sistema <strong>não limita por capitalização de mercado</strong> para não comprometer o rastreamento de oportunidades emergentes. O único critério obrigatório é volume mínimo de $500.000 mil dólares consistente que garante liquidez mínima para análise confiável. ✅ Interpretação prática:
+
+RSI abaixo de 30 → geralmente sinaliza sobrevenda extrema (pode subir, mas pode continuar caindo). Alto risco.
+
+RSI entre 30 e 45 → melhor faixa para entrada: indica que a moeda está se recuperando, com potencial de reversão sem estar esticada.
+
+RSI entre 46 e 60 → início de tendência de alta. A oportunidade pode estar em andamento.
+
+RSI acima de 70 → geralmente já está sobrecomprada (mais risco de correção do que de continuação).
+
+
+
+---
+
+🎯 Estratégia recomendada para o Scanner:
+
+Priorize RSI entre 30 e 45 com:
+
+Volume crescente
+
+Recuperação técnica (ex: média curta cruzando média longa)
+
+Tendência de alta nos últimos dias
+
+Histórico de reação após quedas.</p>
+
+  <p><strong>O acesso é restrito a e-mails autorizados.<br>Insira seu e-mail abaixo e veja as oportunidades antes que elas disparem.</strong></p>
+  </div>
+    <!-- Botão WhatsApp -->
+    <p>
+      <a href="https://wa.me/5521982252303" target="_blank" style="color: green; font-weight: bold;">
+        📲 Fale comigo no WhatsApp
+      </a>
+    </p>
   </div>
 
+  <!-- Campo de e-mail -->
   <input type="email" id="email" placeholder="Digite seu e-mail autorizado">
 
+  <!-- Campos visíveis de ranking -->
+  <div style="margin: 15px 0;">
+    <label for="rankingMin"><strong>Ranking mínimo:</strong></label><br>
+    <input type="number" id="rankingMin" placeholder="Ex: 100" style="max-width: 150px;"><br><br>
+
+    <label for="rankingMax"><strong>Ranking máximo:</strong></label><br>
+    <input type="number" id="rankingMax" placeholder="Ex: 700" style="max-width: 150px;">
+  </div>
+
+  <!-- Campos de Token -->
   <div class="filtros">
-    <input type="number" id="rankingMin" placeholder="Ranking mínimo (ex: 300)">
-    <input type="number" id="rankingMax" placeholder="Ranking máximo (ex: 1300)">
+    <input type="text" placeholder="Token 1" class="tokenFiltro">
+    <input type="text" placeholder="Token 2" class="tokenFiltro">
+    <input type="text" placeholder="Token 3" class="tokenFiltro">
+    <input type="text" placeholder="Token 4" class="tokenFiltro">
+    <input type="text" placeholder="Token 5" class="tokenFiltro">
+    <input type="text" placeholder="Token 6" class="tokenFiltro">
+    <input type="text" placeholder="Token 7" class="tokenFiltro">
+    <input type="text" placeholder="Token 8" class="tokenFiltro">
+    <input type="text" placeholder="Token 9" class="tokenFiltro">
+    <input type="text" placeholder="Token 10" class="tokenFiltro">
   </div>
 
   <button onclick="consultar()">Acessar</button>
+  <button onclick="filtrarPorRanking()">Buscar por Faixa de Ranking</button>
   <p id="mensagem"></p>
 
   <div id="painel">
@@ -70,16 +162,21 @@
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbz7mmD2UWw5Ve7h840FPAzlbyBMkgsDzup0Sx104hPTW9g14JAwFjTT6re2MQ_ygOuY/exec';
+    let dadosAtuais = [];
 
     function consultar() {
       const email = document.getElementById("email").value.trim();
-      const rankingMin = parseInt(document.getElementById("rankingMin").value.trim());
-      const rankingMax = parseInt(document.getElementById("rankingMax").value.trim());
-
       if (!email) {
         document.getElementById("mensagem").textContent = "Informe o e-mail.";
         return;
       }
+
+      const tokensFiltro = Array.from(document.querySelectorAll('.tokenFiltro'))
+        .map(input => input.value.trim().toLowerCase())
+        .filter(v => v !== "");
+
+      const rankingMin = parseInt(document.getElementById("rankingMin").value.trim());
+      const rankingMax = parseInt(document.getElementById("rankingMax").value.trim());
 
       fetch(`${API_URL}?email=${encodeURIComponent(email)}`)
         .then(r => r.json())
@@ -91,41 +188,41 @@
 
           let dadosFiltrados = res.dados;
 
-          // Filtrar por ranking
-          if (!isNaN(rankingMin)) {
-            dadosFiltrados = dadosFiltrados.filter(l => parseInt(l["Rank"]) >= rankingMin);
-          }
-          if (!isNaN(rankingMax)) {
-            dadosFiltrados = dadosFiltrados.filter(l => parseInt(l["Rank"]) <= rankingMax);
+          if (tokensFiltro.length > 0) {
+            dadosFiltrados = dadosFiltrados.filter(l =>
+              tokensFiltro.includes((l["Símbolo"] || "").toLowerCase()) ||
+              tokensFiltro.includes((l["Slug"] || "").toLowerCase())
+            );
           }
 
-          // Adicionar coluna "Confiança RSI"
-          dadosFiltrados = dadosFiltrados.map(item => {
-            const volume = parseFloat(item["Volume"] || 0);
-            const rsi = parseFloat(item["RSI"] || 0);
-            item["Confiança RSI"] = (volume >= 2000000 && rsi >= 30 && rsi <= 70) ? "✅ Confiável" : "⚠️ Com Ruído";
-            return item;
-          });
+          if (!isNaN(rankingMin) && !isNaN(rankingMax)) {
+            dadosFiltrados = dadosFiltrados.filter(l =>
+              parseInt(l["Rank"]) >= rankingMin && parseInt(l["Rank"]) <= rankingMax
+            );
+          }
+
+          document.getElementById("mensagem").textContent = "";
+          document.getElementById("painel").style.display = "block";
 
           const colunas = [
-            "Preço", "Símbolo", "Rank", "RSI", "Confiança RSI", "Link",
+            "Preço", "Símbolo", "Rank", "RSI", "Link",
             "Var 24h (%)", "Var 7D (%)", "Var 30D (%)", "Volume"
           ];
 
-          const dados = dadosFiltrados.map(linha =>
-            colunas.map(coluna => {
+          dadosAtuais = dadosFiltrados.map(linha => {
+            return colunas.map(coluna => {
               const valor = linha[coluna];
-              if (coluna.toLowerCase() === 'link') {
+              if (coluna.toLowerCase() === 'link' && typeof valor === 'string') {
                 return `<a href="${valor}" target="_blank">🔗</a>`;
               }
               return valor;
-            })
-          );
+            });
+          });
 
           const dataHoje = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
 
           $('#tabela').DataTable({
-            data: dados,
+            data: dadosAtuais,
             columns: colunas.map(c => ({ title: c })),
             destroy: true,
             dom: 'Bfrtip',
@@ -139,42 +236,56 @@
             info: false
           });
 
-          document.getElementById("mensagem").textContent = "";
-          document.getElementById("painel").style.display = "block";
-          document.getElementById("contador").textContent = `Total de moedas carregadas: ${dados.length}`;
+          document.getElementById("contador").textContent = `Total de moedas carregadas: ${dadosAtuais.length}`;
 
-          // Colorir RSI
-          const idxRSI = colunas.findIndex(c => c === "RSI");
-          const linhas = document.querySelectorAll("#tabela tbody tr");
-          const total = linhas.length;
-          const terco = Math.ceil(total / 3);
-          linhas.forEach((linha, i) => {
-            const celula = linha.cells[idxRSI];
-            if (!celula) return;
-            if (i < terco) {
-              celula.style.background = "#006400"; celula.style.color = "#fff";
-            } else if (i < 2 * terco) {
-              celula.style.background = "#32CD32";
-            } else {
-              celula.style.background = "#90EE90";
-            }
-          });
+          const idxRSI = colunas.findIndex(c => c.toLowerCase() === 'rsi');
+          if (idxRSI >= 0) {
+            const linhas = document.querySelectorAll("#tabela tbody tr");
+            const valores = Array.from(linhas).map(linha =>
+              parseFloat(linha.cells[idxRSI]?.innerText?.replace(',', '.')) || 0
+            );
+            const ordenado = valores.map((v, i) => ({ valor: v, i })).sort((a, b) => b.valor - a.valor);
+            const terco = Math.ceil(ordenado.length / 3);
 
-          // Colorir Confiança RSI
-          const idxConf = colunas.findIndex(c => c === "Confiança RSI");
-          linhas.forEach(linha => {
-            const celula = linha.cells[idxConf];
-            if (!celula) return;
-            if (celula.textContent.includes("Confiável")) {
-              celula.style.background = "#DFF0D8"; // verde claro
-            } else {
-              celula.style.background = "#FFFACD"; // amarelo claro
-            }
-          });
+            ordenado.forEach((item, idx) => {
+              const celula = linhas[item.i].cells[idxRSI];
+              if (!celula) return;
+              if (idx < terco) {
+                celula.style.background = "#006400"; celula.style.color = "#fff";
+              } else if (idx < 2 * terco) {
+                celula.style.background = "#32CD32";
+              } else {
+                celula.style.background = "#90EE90";
+              }
+            });
+          }
         })
         .catch(() => {
           document.getElementById("mensagem").textContent = "Erro ao consultar.";
         });
+    }
+
+    function filtrarPorRanking() {
+      const rankingMin = parseInt(document.getElementById("rankingMin").value.trim());
+      const rankingMax = parseInt(document.getElementById("rankingMax").value.trim());
+
+      if (isNaN(rankingMin) || isNaN(rankingMax)) {
+        document.getElementById("mensagem").textContent = "Informe valores válidos de ranking.";
+        return;
+      }
+
+      const tabela = $('#tabela').DataTable();
+      tabela.rows().every(function () {
+        const data = this.data();
+        const rank = parseInt(data[2]);
+        if (rank >= rankingMin && rank <= rankingMax) {
+          $(this.node()).show();
+        } else {
+          $(this.node()).hide();
+        }
+      });
+
+      document.getElementById("mensagem").textContent = `Filtrado por ranking: ${rankingMin} a ${rankingMax}`;
     }
   </script>
 </body>
