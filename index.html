@@ -1,21 +1,93 @@
-<!-- (mesmo conteúdo que você já tem acima) -->
-<!-- ... -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matrix Reversal Scanner</title>
+
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; zoom: 90%; }
+    h2 { margin-bottom: 0; }
+    #intro {
+      background: #ffffff;
+      padding: 15px;
+      border-left: 6px solid #006400;
+      margin-bottom: 20px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 8px;
+      width: 100%;
+      max-width: 320px;
+    }
+    .filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+    .filtros input { flex: 1; max-width: 200px; }
+    #mensagem { font-weight: bold; color: red; }
+    #contador { font-weight: bold; margin: 15px 0 10px 0; }
+    #painel { margin-top: 20px; overflow-x: auto; }
+    table { background: white; width: 100%; }
+    #destaques { background: #e6ffe6; border: 1px solid #006400; padding: 10px; margin-bottom: 15px; }
+    #destaques p { margin: 5px 0; }
+  </style>
+</head>
+<body>
+
+<div id="intro">
+  <h2>Matrix Reversal Scanner</h2>
+  <p><strong>Mapeando Reversões. Prevendo o impulso. Antecipando o momento.</strong></p>
+  <p>Este scanner detecta criptomoedas com forte potencial de valorização a partir de padrões técnicos, volume e RSI.</p>
+  <p><strong>📊 Prob 5% (48h):</strong> estimativa de que o token suba +5% nas próximas 48h com base no comportamento recente.</p>
+</div>
+
+<p><a href="https://wa.me/5521982252303" target="_blank" style="color: green; font-weight: bold;">📲 Fale comigo no WhatsApp</a></p>
+
+<input type="email" id="email" placeholder="Digite seu e-mail autorizado">
+
+<!-- Filtros -->
+<div style="margin: 15px 0;">
+  <label><strong>Ranking mínimo:</strong></label><br>
+  <input type="number" id="rankingMin" placeholder="Ex: 100"><br><br>
+  <label><strong>Ranking máximo:</strong></label><br>
+  <input type="number" id="rankingMax" placeholder="Ex: 700">
+</div>
+
+<div class="filtros">
+  <input type="text" placeholder="Token 1" class="tokenFiltro">
+  <input type="text" placeholder="Token 2" class="tokenFiltro">
+  <input type="text" placeholder="Token 3" class="tokenFiltro">
+  <input type="text" placeholder="Token 4" class="tokenFiltro">
+  <input type="text" placeholder="Token 5" class="tokenFiltro">
+  <input type="text" placeholder="Token 6" class="tokenFiltro">
+  <input type="text" placeholder="Token 7" class="tokenFiltro">
+  <input type="text" placeholder="Token 8" class="tokenFiltro">
+  <input type="text" placeholder="Token 9" class="tokenFiltro">
+  <input type="text" placeholder="Token 10" class="tokenFiltro">
+</div>
+
 <button onclick="consultar()">Acessar</button>
 <button onclick="filtrarPorRanking()">Buscar por Faixa de Ranking</button>
-<button onclick="mostrarTudo()">Mostrar Tudo</button>
 <p id="mensagem"></p>
 
-<!-- Destaques automáticos -->
+<!-- Destaques -->
 <div id="destaques">
   <p><strong>🧨 Top 10 criptos com maior desvalorização combinada (7D + 30D) e maior volume:</strong></p>
 </div>
 
+<!-- Painel -->
 <div id="painel">
   <p id="contador"></p>
   <table id="tabela" class="display nowrap"></table>
 </div>
 
-<!-- Scripts finais -->
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
@@ -89,8 +161,8 @@ function consultar() {
 
       document.getElementById("contador").textContent = `Total de moedas carregadas: ${dadosAtuais.length}`;
 
-      // 🔥 Top 10 desvalorizadas combinadas com volume alto
-      let topCombinadas = dadosFiltrados
+      // Destaques: Top 10 com maior queda combinada + maior volume
+      const topCombinadas = dadosFiltrados
         .filter(row => {
           const var7d = parseFloat(row["Var 7D (%)"]);
           const var30d = parseFloat(row["Var 30D (%)"]);
@@ -100,19 +172,20 @@ function consultar() {
         })
         .map(row => ({
           simbolo: row["Símbolo"],
-          score: Math.abs(parseFloat(row["Var 7D (%)"])) + Math.abs(parseFloat(row["Var 30D (%)"])) + (parseFloat(row["Volume"]) / 1000000)
+          score: Math.abs(parseFloat(row["Var 7D (%)"])) +
+                 Math.abs(parseFloat(row["Var 30D (%)"])) +
+                 parseFloat(row["Volume"]) / 1_000_000
         }))
         .sort((a, b) => b.score - a.score)
         .slice(0, 10)
-        .map(m => m.simbolo);
+        .map((m, i) => `🧨 Queda Combinada #${i + 1}: ${m.simbolo}`);
 
       const container = document.getElementById("destaques");
-      for (let i = 0; i < 10; i++) {
-        const campo = document.createElement("p");
-        campo.innerHTML = `<strong>🧨 Queda Combinada #${i + 1}:</strong> ${topCombinadas[i] || "-"}`;
-        container.appendChild(campo);
-      }
-
+      topCombinadas.forEach(txt => {
+        const p = document.createElement("p");
+        p.textContent = txt;
+        container.appendChild(p);
+      });
     })
     .catch(() => {
       document.getElementById("mensagem").textContent = "Erro ao consultar.";
@@ -120,9 +193,9 @@ function consultar() {
 }
 
 function filtrarPorRanking() {
-  const rankingMin = parseInt(document.getElementById("rankingMin").value.trim());
-  const rankingMax = parseInt(document.getElementById("rankingMax").value.trim());
-  if (isNaN(rankingMin) || isNaN(rankingMax)) {
+  const min = parseInt(document.getElementById("rankingMin").value.trim());
+  const max = parseInt(document.getElementById("rankingMax").value.trim());
+  if (isNaN(min) || isNaN(max)) {
     document.getElementById("mensagem").textContent = "Informe valores válidos de ranking.";
     return;
   }
@@ -131,22 +204,10 @@ function filtrarPorRanking() {
   tabela.rows().every(function () {
     const data = this.data();
     const rank = parseInt(data[2]);
-    if (rank >= rankingMin && rank <= rankingMax) {
-      $(this.node()).show();
-    } else {
-      $(this.node()).hide();
-    }
+    $(this.node()).toggle(rank >= min && rank <= max);
   });
 
-  document.getElementById("mensagem").textContent = `Filtrado por ranking: ${rankingMin} a ${rankingMax}`;
-}
-
-function mostrarTudo() {
-  const tabela = $('#tabela').DataTable();
-  tabela.rows().every(function () {
-    $(this.node()).show();
-  });
-  document.getElementById("mensagem").textContent = "Exibindo todas as criptomoedas.";
+  document.getElementById("mensagem").textContent = `Filtrado por ranking: ${min} a ${max}`;
 }
 </script>
 </body>
