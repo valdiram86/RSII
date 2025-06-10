@@ -7,6 +7,7 @@
 
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -97,7 +98,8 @@
     <input type="text" placeholder="Token 8" class="tokenFiltro">
     <input type="text" placeholder="Token 9" class="tokenFiltro">
     <input type="text" placeholder="Token 10" class="tokenFiltro">
-    <input type="number" id="rankingMax" placeholder="Ranking máx (ex: 300)">
+    <input type="number" id="rankingMin" placeholder="Ranking mín (ex: 100)">
+    <input type="number" id="rankingMax" placeholder="Ranking máx (ex: 700)">
   </div>
 
   <button onclick="consultar()">Acessar</button>
@@ -128,6 +130,7 @@
         .map(input => input.value.trim().toLowerCase())
         .filter(v => v !== "");
 
+      const rankingMin = parseInt(document.getElementById("rankingMin").value.trim());
       const rankingMax = parseInt(document.getElementById("rankingMax").value.trim());
 
       fetch(`${API_URL}?email=${encodeURIComponent(email)}`)
@@ -147,8 +150,10 @@
             );
           }
 
-          if (!isNaN(rankingMax)) {
-            dadosFiltrados = dadosFiltrados.filter(l => parseInt(l["Rank"]) <= rankingMax);
+          if (!isNaN(rankingMin) && !isNaN(rankingMax)) {
+            dadosFiltrados = dadosFiltrados.filter(l =>
+              parseInt(l["Rank"]) >= rankingMin && parseInt(l["Rank"]) <= rankingMax
+            );
           }
 
           document.getElementById("mensagem").textContent = "";
@@ -171,7 +176,7 @@
 
           const dataHoje = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
 
-          $('#tabela').DataTable({
+          const tabela = $('#tabela').DataTable({
             data: dados,
             columns: colunas.map(c => ({ title: c })),
             destroy: true,
@@ -194,42 +199,32 @@
 
           document.getElementById("contador").textContent = `Total de moedas carregadas: ${dados.length}`;
 
+          // CORES ORDENADAS POR VALOR REAL DE RSI
           const idxRSI = colunas.findIndex(c => c.toLowerCase() === 'rsi');
-if (idxRSI >= 0) {
-  const linhas = document.querySelectorAll("#tabela tbody tr");
-  const valoresRSI = [];
+          if (idxRSI >= 0) {
+            const linhas = document.querySelectorAll("#tabela tbody tr");
 
-  linhas.forEach(linha => {
-    const celula = linha.cells[idxRSI];
-    if (!celula) return;
-    const valor = parseFloat(celula.textContent.replace(",", "."));
-    if (!isNaN(valor)) {
-      valoresRSI.push(valor);
-    } else {
-      valoresRSI.push(-1); // Para manter índice mesmo em erro
-    }
-  });
+            const valores = Array.from(linhas).map(linha =>
+              parseFloat(linha.cells[idxRSI]?.innerText?.replace(',', '.')) || 0
+            );
 
-  const ordenado = [...valoresRSI].map((v, i) => ({ i, v }))
-    .sort((a, b) => b.v - a.v); // Maior RSI primeiro
+            const ordenado = valores.map((v, i) => ({ valor: v, i }))
+              .sort((a, b) => b.valor - a.valor);
 
-  const terco = Math.ceil(linhas.length / 3);
+            const terco = Math.ceil(ordenado.length / 3);
 
-  ordenado.forEach((item, idx) => {
-    const linha = linhas[item.i];
-    const celula = linha.cells[idxRSI];
-    if (!celula) return;
-
-    if (idx < terco) {
-      celula.style.background = "#006400"; // Verde escuro
-      celula.style.color = "#fff";
-    } else if (idx < 2 * terco) {
-      celula.style.background = "#32CD32"; // Verde médio
-    } else {
-      celula.style.background = "#90EE90"; // Verde claro
-    }
-  });
-}
+            ordenado.forEach((item, idx) => {
+              const celula = linhas[item.i].cells[idxRSI];
+              if (!celula) return;
+              if (idx < terco) {
+                celula.style.background = "#006400"; celula.style.color = "#fff";
+              } else if (idx < 2 * terco) {
+                celula.style.background = "#32CD32";
+              } else {
+                celula.style.background = "#90EE90";
+              }
+            });
+          }
         })
         .catch(() => {
           document.getElementById("mensagem").textContent = "Erro ao consultar.";
