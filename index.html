@@ -7,6 +7,7 @@
 
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
   <style>
     body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; zoom: 90%; }
     h2 { margin-bottom: 0; }
@@ -44,20 +45,31 @@
 <div id="intro">
   <h2>Matrix Reversal Scanner</h2>
   <p><strong>Mapeando Reversões. Prevendo o impulso. Antecipando o momento.</strong></p>
-  <p>Este scanner detecta criptomoedas com forte potencial de valorização a partir de padrões técnicos, volume e RSI.</p>
-  <p><strong>📊 Prob 5% (48h):</strong> estimativa de que o token suba +5% nas próximas 48h com base no comportamento recente.</p>
-</div>
+  <p>O <strong>Matrix Reversal Scanner</strong> é um radar avançado focado na identificação de criptomoedas com alta probabilidade de reversão positiva. Utilizando dados reais, filtragens por RSI, tendências e comportamento de mercado, o sistema rastreia oportunidades com potencial de valorização rápida nos próximos ciclos.</p>
+  <ul>
+    <li>Caíram no mês, mas começam a ganhar força;</li>
+    <li>Volume consistente e comportamento técnico promissor;</li>
+    <li>Sinais claros de reação com RSI otimizado;</li>
+    <li>Estão fora do radar comum, com chance de virada.</li>
+  </ul>
+  <p><strong>Importante:</strong> Este sistema <strong>não limita por market cap</strong>. O único critério obrigatório é volume mínimo de $800.000.<br>
+  <strong>📊 Prob 5% (48h):</strong> chance estimada da moeda subir 5% nos próximos dois dias.</p>
+  <p><strong>O acesso é restrito a e-mails autorizados.<br>Insira seu e-mail abaixo e veja as oportunidades antes que elas disparem.</strong></p>
+</div><p><strong>Importante:</strong> Este sistema <strong>não impõe limites por market cap</strong>. A única exigência fixa é que o volume diário da criptomoeda seja de, no mínimo, <strong>US$800.000</strong>, assegurando liquidez suficiente para validação técnica.</p>
+
+<p><strong>📊 Prob 5% (48h):</strong> estimativa de chance da moeda valorizar ao menos 5% nas próximas 48 horas, com base em dados e tendências recentes.</p>
+
+<p><strong>⚠️ Acesso restrito:</strong> apenas e-mails autorizados podem visualizar as análises completas.<br>
+Insira seu e-mail abaixo e antecipe-se às oportunidades antes que elas disparem.</p>
 
 <p><a href="https://wa.me/5521982252303" target="_blank" style="color: green; font-weight: bold;">📲 Fale comigo no WhatsApp</a></p>
-
 <input type="email" id="email" placeholder="Digite seu e-mail autorizado">
 
-<!-- Filtros -->
 <div style="margin: 15px 0;">
-  <label><strong>Ranking mínimo:</strong></label><br>
-  <input type="number" id="rankingMin" placeholder="Ex: 100"><br><br>
-  <label><strong>Ranking máximo:</strong></label><br>
-  <input type="number" id="rankingMax" placeholder="Ex: 700">
+  <label for="rankingMin"><strong>Ranking mínimo:</strong></label><br>
+  <input type="number" id="rankingMin" placeholder="Ex: 100" style="max-width: 150px;"><br><br>
+  <label for="rankingMax"><strong>Ranking máximo:</strong></label><br>
+  <input type="number" id="rankingMax" placeholder="Ex: 700" style="max-width: 150px;">
 </div>
 
 <div class="filtros">
@@ -77,12 +89,11 @@
 <button onclick="filtrarPorRanking()">Buscar por Faixa de Ranking</button>
 <p id="mensagem"></p>
 
-<!-- Destaques -->
+<!-- Destaques automáticos -->
 <div id="destaques">
   <p><strong>🧨 Top 10 criptos com maior desvalorização combinada (7D + 30D) e maior volume:</strong></p>
 </div>
 
-<!-- Painel -->
 <div id="painel">
   <p id="contador"></p>
   <table id="tabela" class="display nowrap"></table>
@@ -161,8 +172,8 @@ function consultar() {
 
       document.getElementById("contador").textContent = `Total de moedas carregadas: ${dadosAtuais.length}`;
 
-      // Destaques: Top 10 com maior queda combinada + maior volume
-      const topCombinadas = dadosFiltrados
+      // 🔥 Top 10 desvalorizadas combinadas com volume alto
+      let topCombinadas = dadosFiltrados
         .filter(row => {
           const var7d = parseFloat(row["Var 7D (%)"]);
           const var30d = parseFloat(row["Var 30D (%)"]);
@@ -172,20 +183,19 @@ function consultar() {
         })
         .map(row => ({
           simbolo: row["Símbolo"],
-          score: Math.abs(parseFloat(row["Var 7D (%)"])) +
-                 Math.abs(parseFloat(row["Var 30D (%)"])) +
-                 parseFloat(row["Volume"]) / 1_000_000
+          score: Math.abs(parseFloat(row["Var 7D (%)"])) + Math.abs(parseFloat(row["Var 30D (%)"])) + (parseFloat(row["Volume"]) / 1000000)
         }))
         .sort((a, b) => b.score - a.score)
         .slice(0, 10)
-        .map((m, i) => `🧨 Queda Combinada #${i + 1}: ${m.simbolo}`);
+        .map(m => m.simbolo);
 
       const container = document.getElementById("destaques");
-      topCombinadas.forEach(txt => {
-        const p = document.createElement("p");
-        p.textContent = txt;
-        container.appendChild(p);
-      });
+      for (let i = 0; i < 10; i++) {
+        const campo = document.createElement("p");
+        campo.innerHTML = `<strong>🧨 Queda Combinada #${i + 1}:</strong> ${topCombinadas[i] || "-"}`;
+        container.appendChild(campo);
+      }
+
     })
     .catch(() => {
       document.getElementById("mensagem").textContent = "Erro ao consultar.";
@@ -193,9 +203,9 @@ function consultar() {
 }
 
 function filtrarPorRanking() {
-  const min = parseInt(document.getElementById("rankingMin").value.trim());
-  const max = parseInt(document.getElementById("rankingMax").value.trim());
-  if (isNaN(min) || isNaN(max)) {
+  const rankingMin = parseInt(document.getElementById("rankingMin").value.trim());
+  const rankingMax = parseInt(document.getElementById("rankingMax").value.trim());
+  if (isNaN(rankingMin) || isNaN(rankingMax)) {
     document.getElementById("mensagem").textContent = "Informe valores válidos de ranking.";
     return;
   }
@@ -204,10 +214,14 @@ function filtrarPorRanking() {
   tabela.rows().every(function () {
     const data = this.data();
     const rank = parseInt(data[2]);
-    $(this.node()).toggle(rank >= min && rank <= max);
+    if (rank >= rankingMin && rank <= rankingMax) {
+      $(this.node()).show();
+    } else {
+      $(this.node()).hide();
+    }
   });
 
-  document.getElementById("mensagem").textContent = `Filtrado por ranking: ${min} a ${max}`;
+  document.getElementById("mensagem").textContent = `Filtrado por ranking: ${rankingMin} a ${rankingMax}`;
 }
 </script>
 </body>
