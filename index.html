@@ -38,15 +38,6 @@
     table { background: white; width: 100%; }
     #destaques { background: #e6ffe6; border: 1px solid #006400; padding: 10px; margin-bottom: 15px; }
     #destaques p { margin: 5px 0; }
-    #blocoNotas { margin-top: 25px; }
-    #blocoNotas textarea {
-      width: 100%;
-      font-size: 15px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      resize: vertical;
-    }
   </style>
 </head>
 <body>
@@ -61,12 +52,19 @@
     <li>Sinais claros de reação com RSI otimizado;</li>
     <li>Estão fora do radar comum, com chance de virada.</li>
   </ul>
-  <p><strong>Importante:</strong> Este sistema <strong>não impõe limites por market cap</strong>. A única exigência fixa é que o volume diário da criptomoeda seja de, no mínimo, <strong>US$800.000</strong>, assegurando liquidez suficiente para validação técnica.</p>
-  <p><strong>📊 Prob 5% (48h):</strong> estimativa de chance da moeda valorizar ao menos 5% nas próximas 48 horas, com base em dados e tendências recentes.</p>
-  <p><strong>⚠️ Acesso restrito:</strong> apenas e-mails autorizados podem visualizar as análises completas.<br>Insira seu e-mail abaixo e antecipe-se às oportunidades antes que elas disparem.</p>
-  <p><a href="https://wa.me/5521982252303" target="_blank" style="color: green; font-weight: bold;">📲 Fale comigo no WhatsApp</a></p>
+  <p><strong>Importante:</strong> Este sistema <strong>não limita por market cap</strong>. O único critério obrigatório é volume mínimo de $800.000.<br>
+  <strong>📊 Prob 5% (48h):</strong> chance estimada da moeda subir 5% nos próximos dois dias.</p>
+  <p><strong>O acesso é restrito a e-mails autorizados.<br>Insira seu e-mail abaixo e veja as oportunidades antes que elas disparem.</strong></p>
 </div>
 
+<p><strong>Importante:</strong> Este sistema <strong>não impõe limites por market cap</strong>. A única exigência fixa é que o volume diário da criptomoeda seja de, no mínimo, <strong>US$800.000</strong>, assegurando liquidez suficiente para validação técnica.</p>
+
+<p><strong>📊 Prob 5% (48h):</strong> estimativa de chance da moeda valorizar ao menos 5% nas próximas 48 horas, com base em dados e tendências recentes.</p>
+
+<p><strong>⚠️ Acesso restrito:</strong> apenas e-mails autorizados podem visualizar as análises completas.<br>
+Insira seu e-mail abaixo e antecipe-se às oportunidades antes que elas disparem.</p>
+
+<p><a href="https://wa.me/5521982252303" target="_blank" style="color: green; font-weight: bold;">📲 Fale comigo no WhatsApp</a></p>
 <input type="email" id="email" placeholder="Digite seu e-mail autorizado">
 
 <div style="margin: 15px 0;">
@@ -93,24 +91,15 @@
 <button onclick="filtrarPorRanking()">Buscar por Faixa de Ranking</button>
 <p id="mensagem"></p>
 
-<!-- Destaques automáticos -->
 <div id="destaques">
   <p><strong>🧨 Top 10 criptos com maior desvalorização combinada (7D + 30D) e maior volume:</strong></p>
 </div>
 
-<!-- Campo de Anotações Pessoais -->
-<div id="blocoNotas">
-  <h3>📝 Anotações Pessoais</h3>
-  <textarea id="anotacoes" rows="6" placeholder="Escreva aqui suas observações sobre as criptos..."></textarea>
-</div>
-
-<!-- Painel com tabela -->
 <div id="painel">
   <p id="contador"></p>
   <table id="tabela" class="display nowrap"></table>
 </div>
 
-<!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
@@ -118,7 +107,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbz7mmD2UWw5Ve7h840FPAzlbyBMkgsDzup0Sx104hPTW9g14JAwFjTT6re2MQ_ygOuY/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbz7mmD2UWw5Ve7h840FPAzlbyBMkgsDzup0Sx104hPTW9g14JAwFjTT6re2MQ_ygOuY/exec'; // substitua aqui
+
 let dadosAtuais = [];
 
 function consultar() {
@@ -166,15 +156,14 @@ function consultar() {
           ? `<a href="${linha[coluna]}" target="_blank">🔗</a>` : linha[coluna]
       ));
 
-      const dataHoje = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
       $('#tabela').DataTable({
         data: dadosAtuais,
         columns: colunas.map(c => ({ title: c })),
         destroy: true,
         dom: 'Bfrtip',
         buttons: [
-          { extend: 'csvHtml5', title: `MatrixReversal-${dataHoje}` },
-          { extend: 'excelHtml5', title: `MatrixReversal-${dataHoje}` }
+          { extend: 'csvHtml5', title: `MatrixReversal` },
+          { extend: 'excelHtml5', title: `MatrixReversal` }
         ],
         scrollX: true,
         paging: false,
@@ -184,7 +173,7 @@ function consultar() {
 
       document.getElementById("contador").textContent = `Total de moedas carregadas: ${dadosAtuais.length}`;
 
-      let topCombinadas = dadosFiltrados
+      const topCombinadas = dadosFiltrados
         .filter(row => {
           const var7d = parseFloat(row["Var 7D (%)"]);
           const var30d = parseFloat(row["Var 30D (%)"]);
@@ -201,11 +190,24 @@ function consultar() {
         .map(m => m.simbolo);
 
       const container = document.getElementById("destaques");
+      container.innerHTML = `<p><strong>🧨 Top 10 criptos com maior desvalorização combinada (7D + 30D) e maior volume:</strong></p>`;
       for (let i = 0; i < 10; i++) {
         const campo = document.createElement("p");
         campo.innerHTML = `<strong>🧨 Queda Combinada #${i + 1}:</strong> ${topCombinadas[i] || "-"}`;
         container.appendChild(campo);
       }
+
+      const anotacoes = document.createElement("div");
+      anotacoes.innerHTML = `
+        <div id="blocoAnotacoes" style="margin-top: 20px;">
+          <h3>📝 Anotações Pessoais</h3>
+          <textarea id="campoAnotacoes" placeholder="Digite aqui suas observações sobre as criptos de interesse..." rows="5" style="width:100%; max-width:700px; padding:10px;"></textarea><br>
+          <button onclick="salvarAnotacoes()">💾 Salvar</button>
+          <button onclick="limparAnotacoes()" style="margin-left:10px;">🗑️ Limpar</button>
+          <p id="statusAnotacoes" style="margin-top:8px; font-weight:bold; color:green;"></p>
+        </div>
+      `;
+      container.appendChild(anotacoes);
 
     })
     .catch(() => {
@@ -235,18 +237,27 @@ function filtrarPorRanking() {
   document.getElementById("mensagem").textContent = `Filtrado por ranking: ${rankingMin} a ${rankingMax}`;
 }
 
-// Salvar anotações no navegador
-document.addEventListener('DOMContentLoaded', () => {
-  const anotacoesSalvas = localStorage.getItem("user_notes");
-  if (anotacoesSalvas) {
-    document.getElementById("anotacoes").value = anotacoesSalvas;
+function salvarAnotacoes() {
+  const texto = document.getElementById("campoAnotacoes").value;
+  localStorage.setItem("anotacoesMatrix", texto);
+  document.getElementById("statusAnotacoes").textContent = "✅ Anotações salvas localmente.";
+}
+
+function limparAnotacoes() {
+  if (confirm("Tem certeza que deseja apagar suas anotações?")) {
+    localStorage.removeItem("anotacoesMatrix");
+    document.getElementById("campoAnotacoes").value = "";
+    document.getElementById("statusAnotacoes").textContent = "🧹 Anotações apagadas.";
   }
-});
+}
 
-document.getElementById("anotacoes").addEventListener("input", function () {
-  localStorage.setItem("user_notes", this.value);
-});
+window.onload = function () {
+  const salvas = localStorage.getItem("anotacoesMatrix");
+  if (salvas) {
+    const campo = document.getElementById("campoAnotacoes");
+    if (campo) campo.value = salvas;
+  }
+};
 </script>
-
 </body>
 </html>
