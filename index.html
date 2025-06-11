@@ -55,12 +55,7 @@
   <p><strong>Importante:</strong> Este sistema <strong>não limita por market cap</strong>. O único critério obrigatório é volume mínimo de $800.000.<br>
   <strong>📊 Prob 5% (48h):</strong> chance estimada da moeda subir 5% nos próximos dois dias.</p>
   <p><strong>O acesso é restrito a e-mails autorizados.<br>Insira seu e-mail abaixo e veja as oportunidades antes que elas disparem.</strong></p>
-</div><p><strong>Importante:</strong> Este sistema <strong>não impõe limites por market cap</strong>. A única exigência fixa é que o volume diário da criptomoeda seja de, no mínimo, <strong>US$800.000</strong>, assegurando liquidez suficiente para validação técnica.</p>
-
-<p><strong>📊 Prob 5% (48h):</strong> estimativa de chance da moeda valorizar ao menos 5% nas próximas 48 horas, com base em dados e tendências recentes.</p>
-
-<p><strong>⚠️ Acesso restrito:</strong> apenas e-mails autorizados podem visualizar as análises completas.<br>
-Insira seu e-mail abaixo e antecipe-se às oportunidades antes que elas disparem.</p>
+</div>
 
 <p><a href="https://wa.me/5521982252303" target="_blank" style="color: green; font-weight: bold;">📲 Fale comigo no WhatsApp</a></p>
 <input type="email" id="email" placeholder="Digite seu e-mail autorizado">
@@ -89,16 +84,28 @@ Insira seu e-mail abaixo e antecipe-se às oportunidades antes que elas disparem
 <button onclick="filtrarPorRanking()">Buscar por Faixa de Ranking</button>
 <p id="mensagem"></p>
 
-<!-- Destaques automáticos -->
+<!-- Destaques -->
 <div id="destaques">
   <p><strong>🧨 Top 10 criptos com maior desvalorização combinada (7D + 30D) e maior volume:</strong></p>
 </div>
 
+<!-- Tabela -->
 <div id="painel">
   <p id="contador"></p>
   <table id="tabela" class="display nowrap"></table>
 </div>
 
+<!-- Campo de Anotações -->
+<div id="anotacoes" style="margin-top: 20px;">
+  <h3>📝 Campo de Anotações Pessoais</h3>
+  <textarea id="campoAnotacoes" placeholder="Digite aqui suas observações sobre as criptos em análise..." rows="6" style="width: 100%; max-width: 700px; padding: 10px; font-size: 15px;"></textarea>
+  <br>
+  <button onclick="salvarAnotacoes()">💾 Salvar Anotações</button>
+  <button onclick="limparAnotacoes()" style="margin-left: 10px;">🗑️ Limpar</button>
+  <p id="statusAnotacoes" style="color: green; font-weight: bold; margin-top: 8px;"></p>
+</div>
+
+<!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
@@ -172,7 +179,7 @@ function consultar() {
 
       document.getElementById("contador").textContent = `Total de moedas carregadas: ${dadosAtuais.length}`;
 
-      // 🔥 Top 10 desvalorizadas combinadas com volume alto
+      // Destaques combinados
       let topCombinadas = dadosFiltrados
         .filter(row => {
           const var7d = parseFloat(row["Var 7D (%)"]);
@@ -223,6 +230,32 @@ function filtrarPorRanking() {
 
   document.getElementById("mensagem").textContent = `Filtrado por ranking: ${rankingMin} a ${rankingMax}`;
 }
+
+// === Anotações com salvamento local ===
+function salvarAnotacoes() {
+  const campo = document.getElementById("campoAnotacoes");
+  const texto = campo.value.trim();
+  const dataAtual = new Date().toLocaleString('pt-BR');
+  const anotacaoFinal = `🗓️ ${dataAtual}\n${texto}`;
+  localStorage.setItem("anotacoesRSI", anotacaoFinal);
+  campo.value = anotacaoFinal;
+  document.getElementById("statusAnotacoes").textContent = "✅ Anotação salva com data.";
+}
+
+function limparAnotacoes() {
+  if (confirm("Tem certeza que deseja apagar todas as anotações?")) {
+    localStorage.removeItem("anotacoesRSI");
+    document.getElementById("campoAnotacoes").value = "";
+    document.getElementById("statusAnotacoes").textContent = "🧹 Anotações apagadas.";
+  }
+}
+
+window.onload = function () {
+  const anotacoesSalvas = localStorage.getItem("anotacoesRSI");
+  if (anotacoesSalvas) {
+    document.getElementById("campoAnotacoes").value = anotacoesSalvas;
+  }
+};
 </script>
 </body>
 </html>
