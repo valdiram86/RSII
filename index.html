@@ -38,6 +38,12 @@
     table { background: white; width: 100%; }
     #destaques { background: #e6ffe6; border: 1px solid #006400; padding: 10px; margin-bottom: 15px; }
     #destaques p { margin: 5px 0; }
+    #linhaSeparadora {
+      height: 1px;
+      background: linear-gradient(to right, #a5d6a7, #66bb6a, #a5d6a7);
+      border: none;
+      margin: 10px 0 20px 0;
+    }
   </style>
 </head>
 <body>
@@ -84,28 +90,15 @@
 <button onclick="filtrarPorRanking()">Buscar por Faixa de Ranking</button>
 <p id="mensagem"></p>
 
-<!-- Destaques -->
 <div id="destaques">
   <p><strong>🧨 Top 10 criptos com maior desvalorização combinada (7D + 30D) e maior volume:</strong></p>
 </div>
 
-<!-- Tabela -->
 <div id="painel">
   <p id="contador"></p>
   <table id="tabela" class="display nowrap"></table>
 </div>
 
-<!-- Campo de Anotações -->
-<div id="anotacoes" style="margin-top: 20px;">
-  <h3>📝 Campo de Anotações Pessoais</h3>
-  <textarea id="campoAnotacoes" placeholder="Digite aqui suas observações sobre as criptos em análise..." rows="6" style="width: 100%; max-width: 700px; padding: 10px; font-size: 15px;"></textarea>
-  <br>
-  <button onclick="salvarAnotacoes()">💾 Salvar Anotações</button>
-  <button onclick="limparAnotacoes()" style="margin-left: 10px;">🗑️ Limpar</button>
-  <p id="statusAnotacoes" style="color: green; font-weight: bold; margin-top: 8px;"></p>
-</div>
-
-<!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
@@ -179,7 +172,7 @@ function consultar() {
 
       document.getElementById("contador").textContent = `Total de moedas carregadas: ${dadosAtuais.length}`;
 
-      // Destaques combinados
+      // Top 10 queda combinada com linha separadora verde
       let topCombinadas = dadosFiltrados
         .filter(row => {
           const var7d = parseFloat(row["Var 7D (%)"]);
@@ -197,11 +190,17 @@ function consultar() {
         .map(m => m.simbolo);
 
       const container = document.getElementById("destaques");
+      container.innerHTML = `<p><strong>🧨 Top 10 criptos com maior desvalorização combinada (7D + 30D) e maior volume:</strong></p>`;
+
       for (let i = 0; i < 10; i++) {
         const campo = document.createElement("p");
         campo.innerHTML = `<strong>🧨 Queda Combinada #${i + 1}:</strong> ${topCombinadas[i] || "-"}`;
         container.appendChild(campo);
       }
+
+      const linha = document.createElement("div");
+      linha.id = "linhaSeparadora";
+      container.appendChild(linha);
 
     })
     .catch(() => {
@@ -230,32 +229,6 @@ function filtrarPorRanking() {
 
   document.getElementById("mensagem").textContent = `Filtrado por ranking: ${rankingMin} a ${rankingMax}`;
 }
-
-// === Anotações com salvamento local ===
-function salvarAnotacoes() {
-  const campo = document.getElementById("campoAnotacoes");
-  const texto = campo.value.trim();
-  const dataAtual = new Date().toLocaleString('pt-BR');
-  const anotacaoFinal = `🗓️ ${dataAtual}\n${texto}`;
-  localStorage.setItem("anotacoesRSI", anotacaoFinal);
-  campo.value = anotacaoFinal;
-  document.getElementById("statusAnotacoes").textContent = "✅ Anotação salva com data.";
-}
-
-function limparAnotacoes() {
-  if (confirm("Tem certeza que deseja apagar todas as anotações?")) {
-    localStorage.removeItem("anotacoesRSI");
-    document.getElementById("campoAnotacoes").value = "";
-    document.getElementById("statusAnotacoes").textContent = "🧹 Anotações apagadas.";
-  }
-}
-
-window.onload = function () {
-  const anotacoesSalvas = localStorage.getItem("anotacoesRSI");
-  if (anotacoesSalvas) {
-    document.getElementById("campoAnotacoes").value = anotacoesSalvas;
-  }
-};
 </script>
 </body>
 </html>
