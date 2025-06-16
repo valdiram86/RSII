@@ -148,7 +148,7 @@ function consultar() {
       document.getElementById("mensagem").textContent = "";
       document.getElementById("painel").style.display = "block";
 
-      const colunas = ["Preço", "Símbolo", "Rank", "Rank Anterior", "RSI", "Link", "Var 24h (%)", "Var 7D (%)", "Var 30D (%)", "Volume"];
+      const colunas = ["Preço", "Símbolo", "Rank", "RSI", "Link", "Var 24h (%)", "Var 7D (%)", "Var 30D (%)", "Volume"];
       dadosAtuais = dadosFiltrados.map(linha => colunas.map(coluna =>
         coluna.toLowerCase() === 'link' && typeof linha[coluna] === 'string'
           ? `<a href="${linha[coluna]}" target="_blank">🔗</a>` : linha[coluna]
@@ -196,21 +196,6 @@ function consultar() {
         container.appendChild(campo);
       }
 
-      destacarMelhoresSubidas(dadosFiltrados);
-
-      // Aplicar coloração dos tokens salvos
-      const tokensSalvos = JSON.parse(localStorage.getItem("tokensDestacados") || "[]");
-      const tabela = $('#tabela').DataTable();
-      tabela.rows().every(function () {
-        const simbolo = this.data()[1];
-        if (tokensSalvos.includes(simbolo)) {
-          const cor = tokensSalvos.indexOf(simbolo) < 3 ? '#90ee90' :  // verde
-                     tokensSalvos.indexOf(simbolo) < 6 ? '#ffffcc' :  // amarelo
-                                                        '#ffd9b3';   // laranja
-          $(this.node()).css('background-color', cor);
-        }
-      });
-
     })
     .catch(() => {
       document.getElementById("mensagem").textContent = "Erro ao consultar.";
@@ -237,35 +222,6 @@ function filtrarPorRanking() {
   });
 
   document.getElementById("mensagem").textContent = `Filtrado por ranking: ${rankingMin} a ${rankingMax}`;
-}
-
-function destacarMelhoresSubidas(dados) {
-  const subidas = dados
-    .map(item => {
-      const rankAtual = parseInt(item["Rank"]);
-      const rankAnterior = parseInt(item["Rank Anterior"]);
-      if (isNaN(rankAtual) || isNaN(rankAnterior)) return null;
-      const subida = rankAnterior - rankAtual;
-      return { ...item, subida };
-    })
-    .filter(item => item && item.subida > 0)
-    .sort((a, b) => b.subida - a.subida)
-    .slice(0, 10);
-
-  localStorage.setItem("tokensDestacados", JSON.stringify(subidas.map(s => s["Símbolo"])));
-
-  const destaqueSubida = document.createElement("div");
-  destaqueSubida.style.background = "#fff4e6";
-  destaqueSubida.style.border = "1px solid #ffa500";
-  destaqueSubida.style.padding = "10px";
-  destaqueSubida.style.marginTop = "20px";
-
-  destaqueSubida.innerHTML = "<p><strong>📈 Top 10 Subidas de Ranking:</strong></p>" +
-    subidas.map((item, i) =>
-      `<p><strong>📈 Subida #${i + 1}:</strong> ${item["Símbolo"]} (${item["Rank Anterior"]} → ${item["Rank"]})</p>`
-    ).join("");
-
-  document.getElementById("destaques").after(destaqueSubida);
 }
 
 // Salvar anotações
