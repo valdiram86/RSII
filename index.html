@@ -136,7 +136,7 @@ function consultar() {
     return;
   }
 
-  localStorage.setItem("email_autorizado", email); // Armazena o e-mail
+  localStorage.setItem("email_autorizado", email);
 
   const tokensFiltro = Array.from(document.querySelectorAll('.tokenFiltro'))
     .map(input => input.value.trim().toLowerCase()).filter(v => v !== "");
@@ -218,7 +218,7 @@ function consultar() {
         container.appendChild(campo);
       }
 
-      // Bloco de subidas de ranking 🚀
+      // Bloco de subidas 🚀
       const rankAnterior = JSON.parse(localStorage.getItem("rankingAnterior") || "{}");
       const subidasRanking = dadosFiltrados
         .filter(row => {
@@ -237,7 +237,6 @@ function consultar() {
         .sort((a, b) => b.delta - a.delta)
         .slice(0, 7);
 
-      const tabela = $('#tabela').DataTable();
       const blocoRanking = document.getElementById("subidasRanking");
       blocoRanking.innerHTML = `<p><strong>🚀 Top 7 Subidas de Ranking CMC:</strong></p>`;
       subidasRanking.forEach((item, i) => {
@@ -248,16 +247,19 @@ function consultar() {
         blocoRanking.appendChild(p);
       });
 
+      // Colorir apenas a COLUNA RANK (td:eq(2))
+      const tabela = $('#tabela').DataTable();
       tabela.rows().every(function () {
         const simbolo = this.data()[1];
         const destaque = subidasRanking.find(d => d.simbolo === simbolo);
         if (destaque) {
           const i = subidasRanking.indexOf(destaque);
           let cor = i < 3 ? '#00cc00' : i < 5 ? '#FFA500' : '#FFD580';
-          $(this.node()).css('background-color', cor);
+          $(this.node()).find('td:eq(2)').css('background-color', cor);
         }
       });
 
+      // Salvar ranking atual
       const rankAtual = {};
       dadosFiltrados.forEach(row => {
         if (row["Símbolo"] && row["Rank"]) {
@@ -293,14 +295,13 @@ function filtrarPorRanking() {
   document.getElementById("mensagem").textContent = `Filtrado por ranking: ${rankingMin} a ${rankingMax}`;
 }
 
-// Anotações
+// Anotações + autoexecução
 document.addEventListener('DOMContentLoaded', () => {
   const anotacoesSalvas = localStorage.getItem("user_notes");
   if (anotacoesSalvas) {
     document.getElementById("anotacoes").value = anotacoesSalvas;
   }
 
-  // Recarregar consulta se e-mail estiver salvo
   const emailSalvo = localStorage.getItem("email_autorizado");
   if (emailSalvo) {
     document.getElementById("email").value = emailSalvo;
