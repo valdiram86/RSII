@@ -128,7 +128,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script><script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbz7mmD2UWw5Ve7h840FPAzlbyBMkgsDzup0Sx104hPTW9g14JAwFjTT6re2MQ_ygOuY/exec';
 let dadosAtuais = [];
-let mapaSubidas = {}; // usado para aplicar cor via createdRow
+let mapaSubidas = {}; // para uso na renderização
 
 function consultar() {
   const email = document.getElementById("email").value.trim();
@@ -176,43 +176,36 @@ function consultar() {
           ? `<a href="${linha[coluna]}" target="_blank">🔗</a>` : linha[coluna]
       ));
 
-      // Calcular subidas e salvar mapa para usar no createdRow
-      const rankAnterior = JSON.parse(localStorage.getItem("rankingAnterior") || "{}");
-      const subidasRanking = dadosFiltrados
-        .filter(row => {
-          const atual = parseInt(row["Rank"]);
-          const anterior = rankAnterior[row["Símbolo"]];
-          return !isNaN(atual) && !isNaN(anterior) && anterior > atual;
-        })
-        .map(row => {
-          const atual = parseInt(row["Rank"]);
-          const anterior = rankAnterior[row["Símbolo"]];
-          return {
-            simbolo: row["Símbolo"],
-            delta: anterior - atual
-          };
-        })
-        .sort((a, b) => b.delta - a.delta)
-        .slice(0, 7);
-
-      // Mapeia símbolos para cores (índice baseado na posição no top 7)
+      // 🔁 Comparar com ranking anterior salvo
+      const anterior = JSON.parse(localStorage.getItem("rankings_anteriores") || "{}");
       mapaSubidas = {};
-      subidasRanking.forEach((item, i) => {
-        mapaSubidas[item.simbolo] = i < 3 ? '#00cc00' : i < 5 ? '#FFA500' : '#FFD580';
+      dadosFiltrados.forEach(row => {
+        const simbolo = row["Símbolo"];
+        const rankAtual = parseInt(row["Rank"]);
+        const rankAntigo = anterior[simbolo];
+        if (!isNaN(rankAtual) && !isNaN(rankAntigo)) {
+          const delta = rankAntigo - rankAtual;
+          if (delta > 0) {
+            mapaSubidas[simbolo] = delta;
+          }
+        }
       });
 
-      // Bloco visual das subidas
+      // 🟢 Bloco visual das subidas
+      const subidasOrdenadas = Object.entries(mapaSubidas)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 7);
       const blocoRanking = document.getElementById("subidasRanking");
       blocoRanking.innerHTML = `<p><strong>🚀 Top 7 Subidas de Ranking CMC:</strong></p>`;
-      subidasRanking.forEach((item, i) => {
-        let corTexto = i < 3 ? 'green' : i < 5 ? 'orange' : 'darkorange';
+      subidasOrdenadas.forEach(([simbolo, delta], i) => {
         const p = document.createElement("p");
-        p.innerHTML = `#${i + 1} <strong>${item.simbolo}</strong> ↑ +${item.delta} posições`;
+        const corTexto = i < 3 ? 'green' : i < 5 ? 'orange' : 'darkorange';
+        p.innerHTML = `#${i + 1} <strong>${simbolo}</strong> ↑ +${delta} posições`;
         p.style.color = corTexto;
         blocoRanking.appendChild(p);
       });
 
-      // Bloco de quedas combinadas 🧨
+      // 🧨 Bloco de quedas combinadas
       const container = document.getElementById("destaques");
       container.innerHTML = `<p><strong>🧨 Top 10 criptos com maior desvalorização combinada (7D + 30D) e maior volume:</strong></p>`;
       let topCombinadas = dadosFiltrados
@@ -237,7 +230,7 @@ function consultar() {
         container.appendChild(campo);
       }
 
-      // Renderiza a tabela com o createdRow
+      // 🟡 Criar nova tabela com destaque na coluna RANK
       const dataHoje = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
       $('#tabela').DataTable({
         data: dadosAtuais,
@@ -252,25 +245,26 @@ function consultar() {
         paging: false,
         ordering: true,
         info: false,
-        createdRow: function(row, data, dataIndex) {
+        createdRow: function (row, data, dataIndex) {
           const simbolo = data[1];
-          const cor = mapaSubidas[simbolo];
-          if (cor) {
-            $('td', row).eq(2).css('background-color', cor); // só coluna Rank
+          const delta = mapaSubidas[simbolo];
+          if (delta) {
+            let cor = delta >= 20 ? '#00cc00' : delta >= 10 ? '#FFA500' : '#FFD580';
+            $('td', row).eq(2).css('background-color', cor);
           }
         }
       });
 
       document.getElementById("contador").textContent = `Total de moedas carregadas: ${dadosAtuais.length}`;
 
-      // Atualiza o ranking anterior para próxima rodada
-      const rankAtual = {};
+      // 💾 Salvar novo ranking no localStorage
+      const novoRanking = {};
       dadosFiltrados.forEach(row => {
         if (row["Símbolo"] && row["Rank"]) {
-          rankAtual[row["Símbolo"]] = parseInt(row["Rank"]);
+          novoRanking[row["Símbolo"]] = parseInt(row["Rank"]);
         }
       });
-      localStorage.setItem("rankingAnterior", JSON.stringify(rankAtual));
+      localStorage.setItem("rankings_anteriores", JSON.stringify(novoRanking));
     })
     .catch(() => {
       document.getElementById("mensagem").textContent = "Erro ao consultar.";
@@ -299,7 +293,7 @@ function filtrarPorRanking() {
   document.getElementById("mensagem").textContent = `Filtrado por ranking: ${rankingMin} a ${rankingMax}`;
 }
 
-// Anotações + autoexecução
+// 📝 Anotações + execução automática
 document.addEventListener('DOMContentLoaded', () => {
   const anotacoesSalvas = localStorage.getItem("user_notes");
   if (anotacoesSalvas) {
