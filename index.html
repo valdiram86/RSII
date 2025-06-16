@@ -1,252 +1,285 @@
-<!DOCTYPE html>  
-<html lang="pt-BR">  
-<head>  
-  <meta charset="UTF-8" />  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />  
-  <title>Matrix Reversal Scanner</title>  
-  
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">  
-  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">  
-  
-  <style>  
-    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; zoom: 90%; }  
-    h2 { margin-bottom: 0; }  
-    #intro {  
-      background: #ffffff;  
-      padding: 15px;  
-      border-left: 6px solid #006400;  
-      margin-bottom: 20px;  
-    }  
-    input, button {  
-      padding: 10px;  
-      font-size: 16px;  
-      margin-bottom: 8px;  
-      width: 100%;  
-      max-width: 320px;  
-    }  
-    .filtros {  
-      display: flex;  
-      flex-wrap: wrap;  
-      gap: 10px;  
-      margin-top: 10px;  
-      margin-bottom: 10px;  
-    }  
-    .filtros input { flex: 1; max-width: 200px; }  
-    #mensagem { font-weight: bold; color: red; }  
-    #contador { font-weight: bold; margin: 15px 0 10px 0; }  
-    #painel { margin-top: 20px; overflow-x: auto; }  
-    table { background: white; width: 100%; }  
-    #destaques { background: #e6ffe6; border: 1px solid #006400; padding: 10px; margin-bottom: 15px; }  
-    #destaques p { margin: 5px 0; }  
-    #blocoNotas { margin-top: 25px; }  
-    #blocoNotas textarea {  
-      width: 100%;  
-      font-size: 15px;  
-      padding: 10px;  
-      border: 1px solid #ccc;  
-      border-radius: 5px;  
-      resize: vertical;  
-    }  
-  </style>  
-</head>  
-<body>  
-  
-<div id="intro">  
-  <h2>Matrix Reversal Scanner</h2>  
-  <p><strong>Mapeando Reversões. Prevendo o impulso. Antecipando o momento.</strong></p>  
-  <p>O <strong>Matrix Reversal Scanner</strong> é um radar avançado focado na identificação de criptomoedas com alta probabilidade de reversão positiva. Utilizando dados reais, filtragens por RSI, tendências e comportamento de mercado, o sistema rastreia oportunidades com potencial de valorização rápida nos próximos ciclos.</p>  
-  <ul>  
-    <li>Caíram no mês, mas começam a ganhar força;</li>  
-    <li>Volume consistente e comportamento técnico promissor;</li>  
-    <li>Sinais claros de reação com RSI otimizado;</li>  
-    <li>Estão fora do radar comum, com chance de virada.</li>  
-  </ul>  
-  <p><strong>Importante:</strong> Este sistema <strong>não impõe limites por market cap</strong>. A única exigência fixa é que o volume diário da criptomoeda seja de, no mínimo, <strong>US$800.000</strong>, assegurando liquidez suficiente para validação técnica.</p>  
-  <p><strong>📊 Prob 5% (48h):</strong> estimativa de chance da moeda valorizar ao menos 5% nas próximas 48 horas, com base em dados e tendências recentes.</p>  
-  <p><strong>⚠️ Acesso restrito:</strong> apenas e-mails autorizados podem visualizar as análises completas.<br>Insira seu e-mail abaixo e antecipe-se às oportunidades antes que elas disparem.</p>  
-  <p><a href="https://wa.me/5521982252303" target="_blank" style="color: green; font-weight: bold;">📲 Fale comigo no WhatsApp</a></p>  
-</div>  
-  
-<input type="email" id="email" placeholder="Digite seu e-mail autorizado">  
-  
-<div style="margin: 15px 0;">  
-  <label for="rankingMin"><strong>Ranking mínimo:</strong></label><br>  
-  <input type="number" id="rankingMin" placeholder="Ex: 100" style="max-width: 150px;"><br><br>  
-  <label for="rankingMax"><strong>Ranking máximo:</strong></label><br>  
-  <input type="number" id="rankingMax" placeholder="Ex: 700" style="max-width: 150px;">  
-</div>  
-  
-<div class="filtros">  
-  <input type="text" placeholder="Token 1" class="tokenFiltro">  
-  <input type="text" placeholder="Token 2" class="tokenFiltro">  
-  <input type="text" placeholder="Token 3" class="tokenFiltro">  
-  <input type="text" placeholder="Token 4" class="tokenFiltro">  
-  <input type="text" placeholder="Token 5" class="tokenFiltro">  
-  <input type="text" placeholder="Token 6" class="tokenFiltro">  
-  <input type="text" placeholder="Token 7" class="tokenFiltro">  
-  <input type="text" placeholder="Token 8" class="tokenFiltro">  
-  <input type="text" placeholder="Token 9" class="tokenFiltro">  
-  <input type="text" placeholder="Token 10" class="tokenFiltro">  
-</div>  
-  
-<button onclick="consultar()">Acessar</button>  
-<button onclick="filtrarPorRanking()">Buscar por Faixa de Ranking</button>  
-<p id="mensagem"></p>  
-  
-<!-- Destaques automáticos -->  
-<div id="destaques">  
-  <p><strong>🧨 Top 10 criptos com maior desvalorização combinada (7D + 30D) e maior volume:</strong></p>  
-</div>  
-  
-<!-- Campo de Anotações Pessoais -->  
-<div id="blocoNotas">  
-  <h3>📝 Anotações Pessoais</h3>  
-  <textarea id="anotacoes" rows="6" placeholder="Escreva aqui suas observações sobre as criptos..."></textarea>  
-</div>  
-  
-<!-- Painel com tabela -->  
-<div id="painel">  
-  <p id="contador"></p>  
-  <table id="tabela" class="display nowrap"></table>  
-</div>  
-  
-<!-- Scripts -->  
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>  
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>  
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>  
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>  
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>  
-  
-<script>  
-const API_URL = 'https://script.google.com/macros/s/AKfycbz7mmD2UWw5Ve7h840FPAzlbyBMkgsDzup0Sx104hPTW9g14JAwFjTT6re2MQ_ygOuY/exec';  
-let dadosAtuais = [];  
-  
-function consultar() {  
-  const email = document.getElementById("email").value.trim();  
-  if (!email) {  
-    document.getElementById("mensagem").textContent = "Informe o e-mail.";  
-    return;  
-  }  
-  
-  const tokensFiltro = Array.from(document.querySelectorAll('.tokenFiltro'))  
-    .map(input => input.value.trim().toLowerCase()).filter(v => v !== "");  
-  
-  const rankingMin = parseInt(document.getElementById("rankingMin").value.trim());  
-  const rankingMax = parseInt(document.getElementById("rankingMax").value.trim());  
-  
-  fetch(`${API_URL}?email=${encodeURIComponent(email)}`)  
-    .then(r => r.json())  
-    .then(res => {  
-      if (!res.autorizado) {  
-        document.getElementById("mensagem").textContent = "Acesso negado.";  
-        return;  
-      }  
-  
-      let dadosFiltrados = res.dados;  
-  
-      if (tokensFiltro.length > 0) {  
-        dadosFiltrados = dadosFiltrados.filter(l =>  
-          tokensFiltro.includes((l["Símbolo"] || "").toLowerCase()) ||  
-          tokensFiltro.includes((l["Slug"] || "").toLowerCase())  
-        );  
-      }  
-  
-      if (!isNaN(rankingMin) && !isNaN(rankingMax)) {  
-        dadosFiltrados = dadosFiltrados.filter(l =>  
-          parseInt(l["Rank"]) >= rankingMin && parseInt(l["Rank"]) <= rankingMax  
-        );  
-      }  
-  
-      document.getElementById("mensagem").textContent = "";  
-      document.getElementById("painel").style.display = "block";  
-  
-      const colunas = ["Preço", "Símbolo", "Rank", "RSI", "Link", "Var 24h (%)", "Var 7D (%)", "Var 30D (%)", "Volume"];  
-      dadosAtuais = dadosFiltrados.map(linha => colunas.map(coluna =>  
-        coluna.toLowerCase() === 'link' && typeof linha[coluna] === 'string'  
-          ? `<a href="${linha[coluna]}" target="_blank">🔗</a>` : linha[coluna]  
-      ));  
-  
-      const dataHoje = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');  
-      $('#tabela').DataTable({  
-        data: dadosAtuais,  
-        columns: colunas.map(c => ({ title: c })),  
-        destroy: true,  
-        dom: 'Bfrtip',  
-        buttons: [  
-          { extend: 'csvHtml5', title: `MatrixReversal-${dataHoje}` },  
-          { extend: 'excelHtml5', title: `MatrixReversal-${dataHoje}` }  
-        ],  
-        scrollX: true,  
-        paging: false,  
-        ordering: true,  
-        info: false  
-      });  
-  
-      document.getElementById("contador").textContent = `Total de moedas carregadas: ${dadosAtuais.length}`;  
-  
-      let topCombinadas = dadosFiltrados  
-        .filter(row => {  
-          const var7d = parseFloat(row["Var 7D (%)"]);  
-          const var30d = parseFloat(row["Var 30D (%)"]);  
-          const volume = parseFloat(row["Volume"]);  
-          return !isNaN(var7d) && !isNaN(var30d) && !isNaN(volume)  
-            && var7d < 0 && var30d < 0 && volume > 0;  
-        })  
-        .map(row => ({  
-          simbolo: row["Símbolo"],  
-          score: Math.abs(parseFloat(row["Var 7D (%)"])) + Math.abs(parseFloat(row["Var 30D (%)"])) + (parseFloat(row["Volume"]) / 1000000)  
-        }))  
-        .sort((a, b) => b.score - a.score)  
-        .slice(0, 10)  
-        .map(m => m.simbolo);  
-  
-      const container = document.getElementById("destaques");  
-      for (let i = 0; i < 10; i++) {  
-        const campo = document.createElement("p");  
-        campo.innerHTML = `<strong>🧨 Queda Combinada #${i + 1}:</strong> ${topCombinadas[i] || "-"}`;  
-        container.appendChild(campo);  
-      }  
-  
-    })  
-    .catch(() => {  
-      document.getElementById("mensagem").textContent = "Erro ao consultar.";  
-    });  
-}  
-  
-function filtrarPorRanking() {  
-  const rankingMin = parseInt(document.getElementById("rankingMin").value.trim());  
-  const rankingMax = parseInt(document.getElementById("rankingMax").value.trim());  
-  if (isNaN(rankingMin) || isNaN(rankingMax)) {  
-    document.getElementById("mensagem").textContent = "Informe valores válidos de ranking.";  
-    return;  
-  }  
-  
-  const tabela = $('#tabela').DataTable();  
-  tabela.rows().every(function () {  
-    const data = this.data();  
-    const rank = parseInt(data[2]);  
-    if (rank >= rankingMin && rank <= rankingMax) {  
-      $(this.node()).show();  
-    } else {  
-      $(this.node()).hide();  
-    }  
-  });  
-  
-  document.getElementById("mensagem").textContent = `Filtrado por ranking: ${rankingMin} a ${rankingMax}`;  
-}  
-  
-// Salvar anotações no navegador  
-document.addEventListener('DOMContentLoaded', () => {  
-  const anotacoesSalvas = localStorage.getItem("user_notes");  
-  if (anotacoesSalvas) {  
-    document.getElementById("anotacoes").value = anotacoesSalvas;  
-  }  
-});  
-  
-document.getElementById("anotacoes").addEventListener("input", function () {  
-  localStorage.setItem("user_notes", this.value);  
-});  
-</script>  
-  
-</body>  
-</html>  
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Matrix Reversal Scanner</title>
+
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; zoom: 90%; }
+    h2 { margin-bottom: 0; }
+    #intro {
+      background: #ffffff;
+      padding: 15px;
+      border-left: 6px solid #006400;
+      margin-bottom: 20px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 8px;
+      width: 100%;
+      max-width: 320px;
+    }
+    .filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+    .filtros input { flex: 1; max-width: 200px; }
+    #mensagem { font-weight: bold; color: red; }
+    #contador { font-weight: bold; margin: 15px 0 10px 0; }
+    #painel { margin-top: 20px; overflow-x: auto; }
+    table { background: white; width: 100%; }
+    #destaques { background: #e6ffe6; border: 1px solid #006400; padding: 10px; margin-bottom: 15px; }
+    #destaques p { margin: 5px 0; }
+    #blocoNotas { margin-top: 25px; }
+    #blocoNotas textarea {
+      width: 100%;
+      font-size: 15px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      resize: vertical;
+    }
+  </style>
+</head>
+<body>
+
+<div id="intro">
+  <h2>Matrix Reversal Scanner</h2>
+  <p><strong>Mapeando Reversões. Prevendo o impulso. Antecipando o momento.</strong></p>
+  <p>O <strong>Matrix Reversal Scanner</strong> é um radar avançado focado na identificação de criptomoedas com alta probabilidade de reversão positiva...</p>
+  <p><strong>📊 Prob 5% (48h):</strong> estimativa de chance da moeda valorizar ao menos 5% nas próximas 48 horas, com base em dados e tendências recentes.</p>
+  <p><strong>⚠️ Acesso restrito:</strong> apenas e-mails autorizados podem visualizar as análises completas.</p>
+  <p><a href="https://wa.me/5521982252303" target="_blank" style="color: green; font-weight: bold;">📲 Fale comigo no WhatsApp</a></p>
+</div>
+
+<input type="email" id="email" placeholder="Digite seu e-mail autorizado">
+<div style="margin: 15px 0;">
+  <label for="rankingMin"><strong>Ranking mínimo:</strong></label><br>
+  <input type="number" id="rankingMin" placeholder="Ex: 100" style="max-width: 150px;"><br><br>
+  <label for="rankingMax"><strong>Ranking máximo:</strong></label><br>
+  <input type="number" id="rankingMax" placeholder="Ex: 700" style="max-width: 150px;">
+</div>
+
+<div class="filtros">
+  <input type="text" placeholder="Token 1" class="tokenFiltro">
+  <input type="text" placeholder="Token 2" class="tokenFiltro">
+  <input type="text" placeholder="Token 3" class="tokenFiltro">
+  <input type="text" placeholder="Token 4" class="tokenFiltro">
+  <input type="text" placeholder="Token 5" class="tokenFiltro">
+  <input type="text" placeholder="Token 6" class="tokenFiltro">
+  <input type="text" placeholder="Token 7" class="tokenFiltro">
+  <input type="text" placeholder="Token 8" class="tokenFiltro">
+  <input type="text" placeholder="Token 9" class="tokenFiltro">
+  <input type="text" placeholder="Token 10" class="tokenFiltro">
+</div>
+
+<button onclick="consultar()">Acessar</button>
+<button onclick="filtrarPorRanking()">Buscar por Faixa de Ranking</button>
+<p id="mensagem"></p>
+
+<div id="destaques">
+  <p><strong>🧨 Top 10 criptos com maior desvalorização combinada (7D + 30D) e maior volume:</strong></p>
+</div>
+
+<div id="blocoNotas">
+  <h3>📝 Anotações Pessoais</h3>
+  <textarea id="anotacoes" rows="6" placeholder="Escreva aqui suas observações sobre as criptos..."></textarea>
+</div>
+
+<div id="painel">
+  <p id="contador"></p>
+  <table id="tabela" class="display nowrap"></table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbz7mmD2UWw5Ve7h840FPAzlbyBMkgsDzup0Sx104hPTW9g14JAwFjTT6re2MQ_ygOuY/exec';
+let dadosAtuais = [];
+
+function consultar() {
+  const email = document.getElementById("email").value.trim();
+  if (!email) {
+    document.getElementById("mensagem").textContent = "Informe o e-mail.";
+    return;
+  }
+
+  const tokensFiltro = Array.from(document.querySelectorAll('.tokenFiltro'))
+    .map(input => input.value.trim().toLowerCase()).filter(v => v !== "");
+
+  const rankingMin = parseInt(document.getElementById("rankingMin").value.trim());
+  const rankingMax = parseInt(document.getElementById("rankingMax").value.trim());
+
+  fetch(`${API_URL}?email=${encodeURIComponent(email)}`)
+    .then(r => r.json())
+    .then(res => {
+      if (!res.autorizado) {
+        document.getElementById("mensagem").textContent = "Acesso negado.";
+        return;
+      }
+
+      let dadosFiltrados = res.dados;
+
+      if (tokensFiltro.length > 0) {
+        dadosFiltrados = dadosFiltrados.filter(l =>
+          tokensFiltro.includes((l["Símbolo"] || "").toLowerCase()) ||
+          tokensFiltro.includes((l["Slug"] || "").toLowerCase())
+        );
+      }
+
+      if (!isNaN(rankingMin) && !isNaN(rankingMax)) {
+        dadosFiltrados = dadosFiltrados.filter(l =>
+          parseInt(l["Rank"]) >= rankingMin && parseInt(l["Rank"]) <= rankingMax
+        );
+      }
+
+      document.getElementById("mensagem").textContent = "";
+      document.getElementById("painel").style.display = "block";
+
+      const colunas = ["Preço", "Símbolo", "Rank", "Rank Anterior", "RSI", "Link", "Var 24h (%)", "Var 7D (%)", "Var 30D (%)", "Volume"];
+      dadosAtuais = dadosFiltrados.map(linha => colunas.map(coluna =>
+        coluna.toLowerCase() === 'link' && typeof linha[coluna] === 'string'
+          ? `<a href="${linha[coluna]}" target="_blank">🔗</a>` : linha[coluna]
+      ));
+
+      const dataHoje = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
+      $('#tabela').DataTable({
+        data: dadosAtuais,
+        columns: colunas.map(c => ({ title: c })),
+        destroy: true,
+        dom: 'Bfrtip',
+        buttons: [
+          { extend: 'csvHtml5', title: `MatrixReversal-${dataHoje}` },
+          { extend: 'excelHtml5', title: `MatrixReversal-${dataHoje}` }
+        ],
+        scrollX: true,
+        paging: false,
+        ordering: true,
+        info: false
+      });
+
+      document.getElementById("contador").textContent = `Total de moedas carregadas: ${dadosAtuais.length}`;
+
+      // Destaques por queda combinada
+      let topCombinadas = dadosFiltrados
+        .filter(row => {
+          const var7d = parseFloat(row["Var 7D (%)"]);
+          const var30d = parseFloat(row["Var 30D (%)"]);
+          const volume = parseFloat(row["Volume"]);
+          return !isNaN(var7d) && !isNaN(var30d) && !isNaN(volume)
+            && var7d < 0 && var30d < 0 && volume > 0;
+        })
+        .map(row => ({
+          simbolo: row["Símbolo"],
+          score: Math.abs(parseFloat(row["Var 7D (%)"])) + Math.abs(parseFloat(row["Var 30D (%)"])) + (parseFloat(row["Volume"]) / 1000000)
+        }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 10)
+        .map(m => m.simbolo);
+
+      const container = document.getElementById("destaques");
+      for (let i = 0; i < 10; i++) {
+        const campo = document.createElement("p");
+        campo.innerHTML = `<strong>🧨 Queda Combinada #${i + 1}:</strong> ${topCombinadas[i] || "-"}`;
+        container.appendChild(campo);
+      }
+
+      destacarMelhoresSubidas(dadosFiltrados);
+
+      // Aplicar coloração dos tokens salvos
+      const tokensSalvos = JSON.parse(localStorage.getItem("tokensDestacados") || "[]");
+      const tabela = $('#tabela').DataTable();
+      tabela.rows().every(function () {
+        const simbolo = this.data()[1];
+        if (tokensSalvos.includes(simbolo)) {
+          const cor = tokensSalvos.indexOf(simbolo) < 3 ? '#90ee90' :  // verde
+                     tokensSalvos.indexOf(simbolo) < 6 ? '#ffffcc' :  // amarelo
+                                                        '#ffd9b3';   // laranja
+          $(this.node()).css('background-color', cor);
+        }
+      });
+
+    })
+    .catch(() => {
+      document.getElementById("mensagem").textContent = "Erro ao consultar.";
+    });
+}
+
+function filtrarPorRanking() {
+  const rankingMin = parseInt(document.getElementById("rankingMin").value.trim());
+  const rankingMax = parseInt(document.getElementById("rankingMax").value.trim());
+  if (isNaN(rankingMin) || isNaN(rankingMax)) {
+    document.getElementById("mensagem").textContent = "Informe valores válidos de ranking.";
+    return;
+  }
+
+  const tabela = $('#tabela').DataTable();
+  tabela.rows().every(function () {
+    const data = this.data();
+    const rank = parseInt(data[2]);
+    if (rank >= rankingMin && rank <= rankingMax) {
+      $(this.node()).show();
+    } else {
+      $(this.node()).hide();
+    }
+  });
+
+  document.getElementById("mensagem").textContent = `Filtrado por ranking: ${rankingMin} a ${rankingMax}`;
+}
+
+function destacarMelhoresSubidas(dados) {
+  const subidas = dados
+    .map(item => {
+      const rankAtual = parseInt(item["Rank"]);
+      const rankAnterior = parseInt(item["Rank Anterior"]);
+      if (isNaN(rankAtual) || isNaN(rankAnterior)) return null;
+      const subida = rankAnterior - rankAtual;
+      return { ...item, subida };
+    })
+    .filter(item => item && item.subida > 0)
+    .sort((a, b) => b.subida - a.subida)
+    .slice(0, 10);
+
+  localStorage.setItem("tokensDestacados", JSON.stringify(subidas.map(s => s["Símbolo"])));
+
+  const destaqueSubida = document.createElement("div");
+  destaqueSubida.style.background = "#fff4e6";
+  destaqueSubida.style.border = "1px solid #ffa500";
+  destaqueSubida.style.padding = "10px";
+  destaqueSubida.style.marginTop = "20px";
+
+  destaqueSubida.innerHTML = "<p><strong>📈 Top 10 Subidas de Ranking:</strong></p>" +
+    subidas.map((item, i) =>
+      `<p><strong>📈 Subida #${i + 1}:</strong> ${item["Símbolo"]} (${item["Rank Anterior"]} → ${item["Rank"]})</p>`
+    ).join("");
+
+  document.getElementById("destaques").after(destaqueSubida);
+}
+
+// Salvar anotações
+document.addEventListener('DOMContentLoaded', () => {
+  const anotacoesSalvas = localStorage.getItem("user_notes");
+  if (anotacoesSalvas) {
+    document.getElementById("anotacoes").value = anotacoesSalvas;
+  }
+});
+
+document.getElementById("anotacoes").addEventListener("input", function () {
+  localStorage.setItem("user_notes", this.value);
+});
+</script>
+
+</body>
+</html>
